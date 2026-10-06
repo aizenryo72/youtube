@@ -41,7 +41,7 @@ SEARCH_OPTS = {
     'skip_download': True
 }
 
-def fetch_tracks(search_term: str, limit: int = 15):
+def fetch_tracks(search_term: str, limit: int = 7):
     with yt_dlp.YoutubeDL(SEARCH_OPTS) as ydl:
         res = ydl.extract_info(f"ytsearch{limit}:{search_term}", download=False)
         tracks = []
