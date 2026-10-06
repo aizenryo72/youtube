@@ -24,7 +24,6 @@
             height: 100vh; overflow: hidden; position: relative; transition: background-color var(--transition), color var(--transition);
         }
 
-        /* INITIAL FULL SCREEN LOADER */
         .global-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color);
             z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -106,11 +105,10 @@
 </head>
 <body>
 
-    <!-- INITIAL FULL SCREEN STARTUP LOADER -->
     <div id="global-loader" class="global-loader">
         <div class="spinner"></div>
         <h2>Sukoon Player ✨</h2>
-        <p id="global-loader-text">Preparing your vibe...<br><span style="font-size:0.8rem; font-weight:normal;">wait a second</span></p>
+        <p id="global-loader-text">Preparing your vibe...<br><span style="font-size:0.8rem; font-weight:normal;">Fast loading enabled 🚀</span></p>
     </div>
 
     <div class="full-screen-artwork">
@@ -183,7 +181,6 @@
     <script>
         const BACKEND_URL = "https://youtube-2bwq.onrender.com";
 
-        // ================= THEME CONFIGURATION =================
         const THEMES = {
             auto: { bg: '#ffd1dc', primary: '#ff477e', textMain: '#2b2b2b', textMuted: '#6b6b6b', surface: 'rgba(255, 255, 255, 0.7)' },
             gym: { bg: '#0d0d0d', primary: '#00ffcc', textMain: '#ffffff', textMuted: '#aaaaaa', surface: 'rgba(20, 20, 20, 0.85)' },
@@ -223,7 +220,6 @@
             }
         }
 
-        // ================= YOUTUBE IFRAME PLAYER =================
         let player;
         let isPlayerReady = false;
         let progressInterval;
@@ -262,7 +258,6 @@
 
         loadYouTubeAPI(); 
 
-        // ================= STATE & ELEMENTS =================
         let currentQueue = [];
         let currentIndex = 0;
         let isSeeking = false;
@@ -364,7 +359,6 @@
             return `${m}:${s < 10 ? '0' + s : s}`;
         }
 
-        // ================= API CALLS & AUTO PLAY =================
         function saveState(type, cat, title, btnId) {
             localStorage.setItem('sukoon_saved_state', JSON.stringify({ type, cat, title, btnId }));
         }
@@ -382,7 +376,6 @@
                 renderQueue();
                 DOM.globalLoader.classList.add('hidden');
                 
-                // AUTOMATIC PLAY TRIGGER
                 if (autoPlay && currentQueue.length > 0) playTrack(0);
             } catch (err) {
                 DOM.queueList.innerHTML = `<div style="padding:20px; text-align:center;">Server is waking up... Please refresh page.</div>`;
@@ -402,7 +395,6 @@
                 renderQueue();
                 DOM.globalLoader.classList.add('hidden');
                 
-                // AUTOMATIC PLAY TRIGGER
                 if (autoPlay && currentQueue.length > 0) playTrack(0);
             } catch (err) {
                 DOM.queueList.innerHTML = `<div style="padding:20px; text-align:center;">Failed to load.</div>`;
@@ -416,9 +408,7 @@
                 const data = await res.json();
                 currentQueue = data.tracks;
                 renderQueue();
-                
-                // AUTOMATIC PLAY AFTER SEARCH
-                if (currentQueue.length > 0) playTrack(0);
+                // YAHAN SE AUTO-PLAY HATA DIYA HAI. Ab search karne par currently chal raha gaana band nahi hoga.
             } catch (err) {
                 DOM.queueList.innerHTML = `<div style="padding:20px; text-align:center;">Search Failed.</div>`;
             }
@@ -437,7 +427,6 @@
             if (isPlayerReady) {
                 player.loadVideoById(track.id);
             } else {
-                // If clicked before player is fully ready, wait and try again
                 setTimeout(() => { if (isPlayerReady) player.loadVideoById(track.id); }, 1000);
             }
 
@@ -481,7 +470,7 @@
         window.addEventListener('load', () => {
             const saved = JSON.parse(localStorage.getItem('sukoon_saved_state'));
             if (saved && saved.type === 'category') {
-                loadCategory(saved.cat, saved.title, saved.btnId, false); // No auto-play on pure refresh to avoid browser block
+                loadCategory(saved.cat, saved.title, saved.btnId, false); 
             } else {
                 loadFeed('btn-auto', false);
             }
