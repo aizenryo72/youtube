@@ -8,107 +8,51 @@
     <meta name="application-name" content="Sukoon Player">
     <style>
         :root {
-            /* Default Pink Theme */
             --bg-color: #ffd1dc;
             --surface: rgba(255, 255, 255, 0.7);
-            --surface-hover: rgba(255, 255, 255, 0.9);
             --primary: #ff477e;
             --primary-glow: rgba(255, 71, 126, 0.4);
             --text-main: #2b2b2b;
             --text-muted: #6b6b6b;
-            --border-radius: 24px;
             --transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
-            transition: background-color var(--transition), color var(--transition);
+            background-color: var(--bg-color); color: var(--text-main); display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden; position: relative; transition: background-color var(--transition), color var(--transition);
         }
 
-        .full-screen-artwork {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
-            overflow: hidden;
+        /* INITIAL FULL SCREEN LOADER */
+        .global-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s; color: var(--text-main);
         }
+        .global-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .global-loader .spinner { width: 60px; height: 60px; border: 5px solid rgba(128,128,128,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        .global-loader h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+        .global-loader p { font-size: 1rem; color: var(--text-muted); font-weight: 500; text-align: center; padding: 0 20px; }
 
-        #artwork {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transition: opacity var(--transition);
-        }
+        .full-screen-artwork { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+        #artwork { width: 100%; height: 100%; object-fit: cover; transition: opacity var(--transition); }
+        .artwork-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 0%, var(--bg-color) 100%); opacity: 0.9; z-index: 1; transition: background var(--transition); }
+        
+        #yt-player-iframe { position: absolute; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; z-index: -1; border: none; }
 
-        .artwork-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 0%, var(--bg-color) 100%);
-            opacity: 0.9;
-            z-index: 1;
-            transition: background var(--transition);
-        }
-
-        /* HIDDEN YT IFRAME */
-        #yt-player-iframe {
-            position: absolute; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; z-index: -1; border: none;
-        }
-
-        header {
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--surface);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 10;
-            transition: background var(--transition);
-        }
-
+        header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: var(--surface); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); z-index: 10; transition: background var(--transition); }
         .header-title h1 { font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
         .header-title p { font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-top: 2px; }
 
-        /* CATEGORY CHIPS SCROLLER */
-        .category-bar {
-            display: flex; gap: 8px; padding: 10px 20px; overflow-x: auto; white-space: nowrap;
-            z-index: 10; background: rgba(0, 0, 0, 0.05); backdrop-filter: blur(10px);
-            scrollbar-width: none;
-        }
+        .category-bar { display: flex; gap: 8px; padding: 10px 20px; overflow-x: auto; white-space: nowrap; z-index: 10; background: rgba(0, 0, 0, 0.05); backdrop-filter: blur(10px); scrollbar-width: none; }
         .category-bar::-webkit-scrollbar { display: none; }
-
-        .chip {
-            padding: 6px 14px; border-radius: 20px; border: 1px solid var(--primary-glow);
-            background: var(--surface); font-size: 0.82rem; font-weight: 600; cursor: pointer;
-            transition: var(--transition); color: var(--text-main);
-        }
-
-        .chip:hover, .chip.active {
-            background: var(--primary); color: white !important; box-shadow: 0 4px 12px var(--primary-glow); border-color: var(--primary);
-        }
+        .chip { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--primary-glow); background: var(--surface); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--text-main); }
+        .chip:hover, .chip.active { background: var(--primary); color: white !important; box-shadow: 0 4px 12px var(--primary-glow); border-color: var(--primary); }
 
         .container { display: flex; flex: 1; overflow: hidden; z-index: 2; transition: var(--transition); }
-
         .left-panel { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 30px 20px; }
-
-        .glass-player-card {
-            background: var(--surface); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            padding: 30px 35px; border-radius: 28px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            width: 100%; max-width: 620px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: background var(--transition);
-        }
+        .glass-player-card { background: var(--surface); backdrop-filter: blur(25px); padding: 30px 35px; border-radius: 28px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); width: 100%; max-width: 620px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); transition: background var(--transition); }
 
         .track-info { margin-bottom: 20px; }
         #track-title { font-size: 1.6rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
@@ -116,7 +60,6 @@
 
         .progress-container { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .time-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; width: 45px; }
-
         .slider { -webkit-appearance: none; flex: 1; height: 6px; background: rgba(128, 128, 128, 0.3); border-radius: 4px; outline: none; cursor: pointer; }
         .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 10px var(--primary-glow); }
 
@@ -127,19 +70,13 @@
 
         .secondary-controls { display: inline-flex; align-items: center; gap: 15px; background: rgba(128,128,128,0.1); padding: 8px 16px; border-radius: 18px; }
         .volume-slider { width: 85px; }
-
         .btn-playlist-toggle { display: flex; align-items: center; gap: 6px; background: rgba(128,128,128,0.1); border: none; padding: 7px 14px; border-radius: 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--text-main); }
         .btn-playlist-toggle.active { background: var(--primary); color: white; }
 
-        .right-panel {
-            width: 0px; opacity: 0; background: var(--surface); backdrop-filter: blur(25px); display: flex; flex-direction: column;
-            border-left: 1px solid rgba(255, 255, 255, 0.1); transition: var(--transition); overflow: hidden;
-        }
+        .right-panel { width: 0px; opacity: 0; background: var(--surface); backdrop-filter: blur(25px); display: flex; flex-direction: column; border-left: 1px solid rgba(255, 255, 255, 0.1); transition: var(--transition); overflow: hidden; }
         .container.show-playlist .right-panel { width: 380px; opacity: 1; }
-
         .queue-header { padding: 16px; border-bottom: 1px solid rgba(128,128,128,0.1); width: 380px; }
         
-        /* NEW SEARCH BOX WITH BUTTON */
         .search-container { display: flex; gap: 10px; width: 100%; }
         .search-box { flex: 1; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(128,128,128,0.2); background: var(--bg-color); color: var(--text-main); outline: none; font-size: 0.85rem; }
         .btn-search { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 0 15px; cursor: pointer; font-size: 1.1rem; transition: transform 0.2s; box-shadow: 0 4px 10px var(--primary-glow); }
@@ -154,10 +91,8 @@
         .queue-title { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .queue-artist { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* LOADING SPINNER */
         .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100px; width: 100%; margin-top: 50px; }
-        .spinner { width: 40px; height: 40px; border: 4px solid rgba(128,128,128,0.2); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        .loader-text { margin-top: 10px; font-weight: 600; color: var(--primary); font-size: 0.9rem; }
+        .loader-text { margin-top: 10px; font-weight: 600; color: var(--primary); font-size: 0.9rem; text-align: center;}
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         @media (max-width: 900px) {
@@ -171,10 +106,16 @@
 </head>
 <body>
 
+    <!-- INITIAL FULL SCREEN STARTUP LOADER -->
+    <div id="global-loader" class="global-loader">
+        <div class="spinner"></div>
+        <h2>Sukoon Player ✨</h2>
+        <p id="global-loader-text">Preparing your vibe...<br><span style="font-size:0.8rem; font-weight:normal;">Fast loading enabled 🚀</span></p>
+    </div>
+
     <div class="full-screen-artwork">
         <img id="artwork" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Artwork" />
         <div class="artwork-overlay"></div>
-        <!-- YOUTUBE IFRAME WAPAS AA GAYA HAI AUDIO PLAY KARNE KE LIYE -->
         <div id="yt-player-iframe"></div>
     </div>
 
@@ -186,17 +127,18 @@
     </header>
 
     <div class="category-bar" id="category-bar">
-        <button class="chip active" onclick="loadFeed(this)">Auto Mood</button>
-        <button class="chip" onclick="loadCategory('bhakti', 'Bhakti & Aarti 🕉️', this)">Bhakti</button>
-        <button class="chip" onclick="loadCategory('sad', 'Sad & Heartbroken 💔', this)">Sad</button>
-        <button class="chip" onclick="loadCategory('romantic', 'Romantic Vibes 💕', this)">Romantic</button>
-        <button class="chip" onclick="loadCategory('gym', 'Ghost Workout 👻', this)">Gym Workout</button>
-        <button class="chip" onclick="loadCategory('bhojpuri', 'Bhojpuri Hits 🕺', this)">Bhojpuri</button>
-        <button class="chip" onclick="loadCategory('qawwali', 'Sufi & Qawwali 🌙', this)">Qawwali</button>
-        <button class="chip" onclick="loadCategory('funk', 'Phonk & Bass 🔥', this)">Phonk</button>
-        <button class="chip" onclick="loadCategory('90s', '90s Evergreen 📼', this)">90s Hits</button>
-        <button class="chip" onclick="loadCategory('old', 'Retro Classics 📻', this)">Old Classics</button>
-        <button class="chip" onclick="loadCategory('english', 'Global Pop 🌍', this)">English</button>
+        <button id="btn-auto" class="chip active" onclick="loadFeed('btn-auto', true)">Auto Mood</button>
+        <button id="btn-podcast" class="chip" onclick="loadCategory('podcast', 'Podcasts 🎙', 'btn-podcast', true)">Podcast</button>
+        <button id="btn-bhakti" class="chip" onclick="loadCategory('bhakti', 'Bhakti & Aarti 🕉️', 'btn-bhakti', true)">Bhakti</button>
+        <button id="btn-sad" class="chip" onclick="loadCategory('sad', 'Sad & Heartbroken 💔', 'btn-sad', true)">Sad</button>
+        <button id="btn-romantic" class="chip" onclick="loadCategory('romantic', 'Romantic Vibes 💕', 'btn-romantic', true)">Romantic</button>
+        <button id="btn-gym" class="chip" onclick="loadCategory('gym', 'Ghost Workout 👻', 'btn-gym', true)">Gym Workout</button>
+        <button id="btn-bhojpuri" class="chip" onclick="loadCategory('bhojpuri', 'Bhojpuri Hits 🕺', 'btn-bhojpuri', true)">Bhojpuri</button>
+        <button id="btn-qawwali" class="chip" onclick="loadCategory('qawwali', 'Sufi & Qawwali 🌙', 'btn-qawwali', true)">Qawwali</button>
+        <button id="btn-funk" class="chip" onclick="loadCategory('funk', 'Phonk & Bass 🔥', 'btn-funk', true)">Phonk</button>
+        <button id="btn-90s" class="chip" onclick="loadCategory('90s', '90s Evergreen 📼', 'btn-90s', true)">90s Hits</button>
+        <button id="btn-old" class="chip" onclick="loadCategory('old', 'Retro Classics 📻', 'btn-old', true)">Old Classics</button>
+        <button id="btn-english" class="chip" onclick="loadCategory('english', 'Global Pop 🌍', 'btn-english', true)">English</button>
     </div>
 
     <div class="container" id="main-container">
@@ -204,7 +146,7 @@
             <div class="glass-player-card">
                 <div class="track-info">
                     <h2 id="track-title">Sukoon Player ✨</h2>
-                    <h3 id="track-artist">Select a category to start</h3>
+                    <h3 id="track-artist">Select a song to play</h3>
                 </div>
 
                 <div class="progress-container">
@@ -229,7 +171,6 @@
 
         <div class="right-panel">
             <div class="queue-header">
-                <!-- NEW SEARCH CONTAINER -->
                 <div class="search-container">
                     <input type="text" id="search" class="search-box" placeholder="Search any song...">
                     <button class="btn-search" id="btn-search-trigger">🔍</button>
@@ -240,7 +181,6 @@
     </div>
 
     <script>
-        // API URL
         const BACKEND_URL = "https://youtube-2bwq.onrender.com";
 
         // ================= THEME CONFIGURATION =================
@@ -255,7 +195,8 @@
             funk: { bg: '#1a0033', primary: '#b400ff', textMain: '#ffffff', textMuted: '#ce93d8', surface: 'rgba(40, 10, 60, 0.85)' },
             '90s': { bg: '#fdf3e7', primary: '#d35400', textMain: '#2e4053', textMuted: '#566573', surface: 'rgba(255, 255, 255, 0.75)' },
             old: { bg: '#eaecee', primary: '#5d6d7e', textMain: '#17202a', textMuted: '#5d6d7e', surface: 'rgba(255, 255, 255, 0.75)' },
-            english: { bg: '#ebf5fb', primary: '#2980b9', textMain: '#154360', textMuted: '#2471a3', surface: 'rgba(255, 255, 255, 0.75)' }
+            english: { bg: '#ebf5fb', primary: '#2980b9', textMain: '#154360', textMuted: '#2471a3', surface: 'rgba(255, 255, 255, 0.75)' },
+            podcast: { bg: '#e0f2f1', primary: '#00897b', textMain: '#004d40', textMuted: '#00695c', surface: 'rgba(255, 255, 255, 0.75)' }
         };
 
         function applyTheme(themeKey) {
@@ -271,14 +212,18 @@
             let g = parseInt(hex.substring(2, 4), 16);
             let b = parseInt(hex.substring(4, 6), 16);
             document.documentElement.style.setProperty('--primary-glow', `rgba(${r}, ${g}, ${b}, 0.4)`);
+            document.getElementById('global-loader').style.backgroundColor = t.bg;
         }
 
-        function setActiveChip(clickedBtn) {
+        function setActiveChip(btnId) {
             document.querySelectorAll('.chip').forEach(btn => btn.classList.remove('active'));
-            if(clickedBtn) clickedBtn.classList.add('active');
+            if(btnId) {
+                const btn = document.getElementById(btnId);
+                if(btn) btn.classList.add('active');
+            }
         }
 
-        // ================= YOUTUBE IFRAME PLAYER (For Flawless Audio & Time) =================
+        // ================= YOUTUBE IFRAME PLAYER =================
         let player;
         let isPlayerReady = false;
         let progressInterval;
@@ -305,7 +250,7 @@
             if (event.data === YT.PlayerState.PLAYING) {
                 DOM.playPause.innerHTML = '⏸';
                 startProgressTracking();
-                DOM.title.textContent = currentQueue[currentIndex].title; // Update Title when actually playing
+                DOM.title.textContent = currentQueue[currentIndex].title; 
             } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
                 DOM.playPause.innerHTML = '▶';
                 stopProgressTracking();
@@ -315,9 +260,9 @@
             }
         }
 
-        loadYouTubeAPI(); // Initialize YT Player
+        loadYouTubeAPI(); 
 
-        // ================= STATE =================
+        // ================= STATE & ELEMENTS =================
         let currentQueue = [];
         let currentIndex = 0;
         let isSeeking = false;
@@ -338,10 +283,12 @@
             search: document.getElementById('search'),
             btnSearchTrigger: document.getElementById('btn-search-trigger'),
             btnTogglePlaylist: document.getElementById('btn-toggle-playlist'),
-            greeting: document.getElementById('greeting-indicator')
+            greeting: document.getElementById('greeting-indicator'),
+            globalLoader: document.getElementById('global-loader'),
+            globalLoaderText: document.getElementById('global-loader-text')
         };
 
-        function showLoader(text = "Loading...") {
+        function showMiniLoader(text = "Loading...") {
             DOM.queueList.innerHTML = `
                 <div class="loader-container">
                     <div class="spinner"></div>
@@ -366,7 +313,6 @@
             }
         });
 
-        // Seekbar logic
         DOM.seekSlider.addEventListener('mousedown', () => isSeeking = true);
         DOM.seekSlider.addEventListener('touchstart', () => isSeeking = true, {passive: true});
         DOM.seekSlider.addEventListener('change', (e) => {
@@ -377,7 +323,6 @@
             isSeeking = false;
         });
 
-        // Volume logic
         DOM.volumeSlider.addEventListener('input', (e) => {
             if(isPlayerReady) player.setVolume(e.target.value);
         });
@@ -385,7 +330,6 @@
         DOM.next.addEventListener('click', () => { if (currentIndex + 1 < currentQueue.length) playTrack(currentIndex + 1); });
         DOM.prev.addEventListener('click', () => { if (currentIndex - 1 >= 0) playTrack(currentIndex - 1); });
 
-        // Search Handlers (Enter & Button)
         const triggerSearch = () => {
             const query = DOM.search.value.trim();
             if (query !== '') {
@@ -398,8 +342,6 @@
         DOM.search.addEventListener('keypress', (e) => { if (e.key === 'Enter') triggerSearch(); });
         DOM.btnSearchTrigger.addEventListener('click', triggerSearch);
 
-
-        // ================= PROGRESS TRACKING =================
         function startProgressTracking() {
             stopProgressTracking();
             progressInterval = setInterval(() => {
@@ -415,7 +357,6 @@
             }, 500);
         }
         function stopProgressTracking() { clearInterval(progressInterval); }
-
         function formatTime(sec) {
             if (isNaN(sec) || sec === 0) return "0:00";
             const m = Math.floor(sec / 60);
@@ -423,10 +364,15 @@
             return `${m}:${s < 10 ? '0' + s : s}`;
         }
 
-        // ================= API & DATA FETCHING =================
-        async function loadFeed(btnElement) {
-            setActiveChip(btnElement);
-            showLoader("Fetching your vibe...");
+        // ================= API CALLS & AUTO PLAY =================
+        function saveState(type, cat, title, btnId) {
+            localStorage.setItem('sukoon_saved_state', JSON.stringify({ type, cat, title, btnId }));
+        }
+
+        async function loadFeed(btnId, autoPlay = false) {
+            saveState('feed', null, null, btnId);
+            setActiveChip(btnId);
+            showMiniLoader("Fetching your vibe...");
             try {
                 const res = await fetch(`${BACKEND_URL}/api/feed`);
                 const data = await res.json();
@@ -434,33 +380,45 @@
                 currentQueue = data.tracks;
                 applyTheme('auto');
                 renderQueue();
+                DOM.globalLoader.classList.add('hidden');
+                
+                // AUTOMATIC PLAY TRIGGER
+                if (autoPlay && currentQueue.length > 0) playTrack(0);
             } catch (err) {
                 DOM.queueList.innerHTML = `<div style="padding:20px; text-align:center;">Server is waking up... Please refresh page.</div>`;
             }
         }
 
-        async function loadCategory(cat, title, btnElement) {
-            setActiveChip(btnElement);
+        async function loadCategory(cat, title, btnId, autoPlay = false) {
+            saveState('category', cat, title, btnId);
+            setActiveChip(btnId);
             DOM.greeting.textContent = title;
             applyTheme(cat); 
-            showLoader(`Loading ${title}...`);
+            showMiniLoader(`Loading ${title}...`);
             try {
                 const res = await fetch(`${BACKEND_URL}/api/category?genre=${cat}`);
                 const data = await res.json();
                 currentQueue = data.tracks;
                 renderQueue();
+                DOM.globalLoader.classList.add('hidden');
+                
+                // AUTOMATIC PLAY TRIGGER
+                if (autoPlay && currentQueue.length > 0) playTrack(0);
             } catch (err) {
                 DOM.queueList.innerHTML = `<div style="padding:20px; text-align:center;">Failed to load.</div>`;
             }
         }
 
         async function searchTracks(query) {
-            showLoader(`Searching for "${query}"...`);
+            showMiniLoader(`Searching for "${query}"...`);
             try {
                 const res = await fetch(`${BACKEND_URL}/api/search?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 currentQueue = data.tracks;
                 renderQueue();
+                
+                // AUTOMATIC PLAY AFTER SEARCH
+                if (currentQueue.length > 0) playTrack(0);
             } catch (err) {
                 DOM.queueList.innerHTML = `<div style="padding:20px; text-align:center;">Search Failed.</div>`;
             }
@@ -471,18 +429,18 @@
             currentIndex = index;
             const track = currentQueue[index];
 
-            // UI Loading state
             DOM.title.textContent = "Connecting to Audio... ⏳";
             DOM.artist.textContent = track.artist;
             DOM.artwork.src = track.thumbnail;
             updateQueueHighlight();
 
-            // Load Video ID in Hidden Player
             if (isPlayerReady) {
                 player.loadVideoById(track.id);
+            } else {
+                // If clicked before player is fully ready, wait and try again
+                setTimeout(() => { if (isPlayerReady) player.loadVideoById(track.id); }, 1000);
             }
 
-            // Media Session Background Play controls
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: track.title,
@@ -520,8 +478,14 @@
             });
         }
 
-        // On Load init
-        loadFeed(document.querySelector('.chip.active'));
+        window.addEventListener('load', () => {
+            const saved = JSON.parse(localStorage.getItem('sukoon_saved_state'));
+            if (saved && saved.type === 'category') {
+                loadCategory(saved.cat, saved.title, saved.btnId, false); // No auto-play on pure refresh to avoid browser block
+            } else {
+                loadFeed('btn-auto', false);
+            }
+        });
     </script>
 </body>
 </html>
