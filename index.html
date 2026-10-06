@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUKOON PLAYER  ✨</title>
+    <title>SUKOON PLAYER ✨</title>
+    <meta name="apple-mobile-web-app-title" content="Sukoon Player">
+    <meta name="application-name" content="Sukoon Player">
     <style>
         :root {
-            /* LIGHT PINK THEME */
-            --bg-color: #ffd1dc; /* Light Pink Background */
-            --surface: rgba(255, 255, 255, 0.7); /* Glass effect */
+            --bg-color: #ffd1dc;
+            --surface: rgba(255, 255, 255, 0.7);
             --surface-hover: rgba(255, 255, 255, 0.9);
-            --primary: #ff477e; /* Vibrant Pink for buttons */
+            --primary: #ff477e;
             --primary-glow: rgba(255, 71, 126, 0.4);
-            --text-main: #2b2b2b; /* Dark text for light mode */
+            --text-main: #2b2b2b;
             --text-muted: #6b6b6b;
             --border-radius: 24px;
-            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -35,53 +36,32 @@
             position: relative;
         }
 
-        /* FULL SCREEN ARTWORK BACKGROUND */
         .full-screen-artwork {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             z-index: 0;
             overflow: hidden;
         }
 
         #artwork {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
             transition: opacity var(--transition);
         }
 
-        /* Overlay to make text and glass card pop */
         .artwork-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, rgba(255,209,220,0.3) 0%, rgba(255,209,220,0.8) 100%);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,209,220,0.3) 0%, rgba(255,209,220,0.85) 100%);
             z-index: 1;
         }
 
-        /* HIDDEN YT IFRAME */
-        #yt-player-iframe {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0.01;
-            pointer-events: none;
-            z-index: -1;
-            border: none;
-        }
-
-        /* HEADER */
         header {
-            padding: 20px 30px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.5);
@@ -89,10 +69,8 @@
         }
 
         .header-title h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
         }
 
         .header-title p {
@@ -101,100 +79,105 @@
             margin-top: 2px;
         }
 
-        /* MAIN LAYOUT */
+        /* CATEGORY CHIPS SCROLLER */
+        .category-bar {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            scrollbar-width: none;
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+
+        .chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 71, 126, 0.2);
+            background: rgba(255, 255, 255, 0.65);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-main);
+        }
+
+        .chip:hover, .chip.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
-            z-index: 2; /* Above the background */
+            z-index: 2;
             transition: var(--transition);
         }
 
-        /* LEFT PANEL (HOME SCREEN) */
         .left-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end; /* Push controls to the bottom */
-            padding: 40px 20px;
-            position: relative;
-            transition: var(--transition);
+            justify-content: flex-end;
+            padding: 30px 20px;
         }
 
-        /* GLASS PLAYER CARD (Floating over thumbnail) */
         .glass-player-card {
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.78);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 35px 40px;
-            border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 30px 35px;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 650px;
+            max-width: 620px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
-        /* RIGHT PANEL (PLAYLIST - HIDDEN BY DEFAULT) */
-        .right-panel {
-            width: 0px;
-            opacity: 0;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid rgba(255, 255, 255, 0.5);
-            transition: var(--transition);
-            overflow: hidden;
-        }
-
-        .container.show-playlist .right-panel {
-            width: 400px;
-            opacity: 1;
-        }
-
-        /* TRACK INFO */
         .track-info {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         #track-title {
-            font-size: 2rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            margin-bottom: 6px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            color: var(--text-main);
         }
 
         #track-artist {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             color: var(--text-muted);
-            font-weight: 500;
+            margin-top: 4px;
         }
 
-        /* CONTROLS */
         .progress-container {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .time-text {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            width: 50px;
+            width: 45px;
         }
 
         .slider {
             -webkit-appearance: none;
             flex: 1;
-            height: 8px;
+            height: 6px;
             background: rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             outline: none;
@@ -203,23 +186,20 @@
 
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             background: var(--primary);
             cursor: pointer;
             box-shadow: 0 0 10px var(--primary-glow);
-            transition: transform 0.1s;
         }
-
-        .slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
         .main-controls {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 30px;
-            margin-bottom: 25px;
+            gap: 24px;
+            margin-bottom: 18px;
         }
 
         .btn {
@@ -227,224 +207,151 @@
             border: none;
             color: var(--text-main);
             cursor: pointer;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: var(--transition);
-            opacity: 0.6;
+            opacity: 0.65;
         }
 
-        .btn:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
-        .btn.active {
-            color: var(--primary);
-            opacity: 1;
-        }
+        .btn:hover { opacity: 1; transform: scale(1.1); }
 
         .btn-play {
-            width: 72px;
-            height: 72px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             background: var(--primary);
             color: white;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             opacity: 1;
-            box-shadow: 0 8px 25px var(--primary-glow);
-        }
-
-        .btn-play:hover {
-            transform: scale(1.05);
-            background: #ff2a6d;
+            box-shadow: 0 6px 20px var(--primary-glow);
         }
 
         .secondary-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            background: rgba(0,0,0,0.03);
-            padding: 10px 20px;
-            border-radius: 20px;
             display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0,0,0,0.03);
+            padding: 8px 16px;
+            border-radius: 18px;
         }
 
-        .volume-slider { width: 100px; }
+        .volume-slider { width: 85px; }
 
-        /* PLAYLIST TOGGLE BUTTON */
         .btn-playlist-toggle {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(0,0,0,0.05);
             border: none;
-            padding: 8px 16px;
-            border-radius: 16px;
-            font-size: 0.95rem;
+            padding: 7px 14px;
+            border-radius: 14px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--text-main);
             cursor: pointer;
             transition: var(--transition);
-            margin-left: 15px;
         }
 
-        .btn-playlist-toggle:hover {
-            background: rgba(0,0,0,0.1);
-        }
-        
         .btn-playlist-toggle.active {
             background: var(--primary);
             color: white;
-            box-shadow: 0 4px 15px var(--primary-glow);
         }
 
-        /* QUEUE PANEL (PLAYLIST) */
+        .right-panel {
+            width: 0px;
+            opacity: 0;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .container.show-playlist .right-panel {
+            width: 380px;
+            opacity: 1;
+        }
+
         .queue-header {
-            padding: 20px;
+            padding: 16px;
             border-bottom: 1px solid rgba(0,0,0,0.05);
-            width: 400px; 
+            width: 380px;
         }
 
         .search-box {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
             border: 1px solid rgba(0,0,0,0.1);
-            background: rgba(255,255,255,0.5);
-            color: var(--text-main);
-            font-size: 0.9rem;
+            background: rgba(255,255,255,0.7);
             outline: none;
-            transition: var(--transition);
+            font-size: 0.85rem;
         }
 
         .search-box:focus {
             background: #fff;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
         .queue-list {
             flex: 1;
             overflow-y: auto;
             padding: 10px;
-            width: 400px;
+            width: 380px;
         }
-
-        .queue-list::-webkit-scrollbar { width: 6px; }
-        .queue-list::-webkit-scrollbar-track { background: transparent; }
-        .queue-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
-        .queue-list::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         .queue-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 10px;
-            border-radius: 12px;
+            gap: 12px;
+            padding: 9px;
+            border-radius: 10px;
             cursor: pointer;
             transition: var(--transition);
         }
 
-        .queue-item:hover {
-            background: var(--surface-hover);
-        }
-
+        .queue-item:hover { background: var(--surface-hover); }
         .queue-item.active {
-            background: rgba(255, 71, 126, 0.1);
-            border-left: 4px solid var(--primary);
-        }
-
-        .queue-index {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            width: 20px;
-            text-align: right;
-            font-weight: 600;
+            background: rgba(255, 71, 126, 0.12);
+            border-left: 3px solid var(--primary);
         }
 
         .queue-thumb {
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             border-radius: 8px;
             object-fit: cover;
-            background: #ffe4e1;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: #ffd1dc;
         }
 
-        .queue-details {
-            flex: 1;
-            overflow: hidden;
-        }
-
+        .queue-details { flex: 1; overflow: hidden; }
         .queue-title {
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-bottom: 4px;
         }
-
         .queue-artist {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .playing-indicator {
-            display: none;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-        .queue-item.active .playing-indicator {
-            display: block;
-            animation: pulse 1s infinite alternate;
-        }
-
-        .queue-item.active .queue-index { display: none; }
-
-        /* LOADING OVERLAY */
-        .overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            transition: opacity 0.4s;
-        }
-
-        .spinner {
-            width: 50px; height: 50px;
-            border: 5px solid rgba(255,255,255,0.4);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; transform: scale(1.1); } }
-
-        /* RESPONSIVE MOBILE */
         @media (max-width: 900px) {
             .container { flex-direction: column; overflow-y: auto; }
-            .left-panel { padding: 20px; justify-content: center; }
-            .glass-player-card { padding: 25px 20px; }
-            
-            .container.show-playlist .right-panel { 
-                width: 100%; 
-                border-left: none; 
-                border-top: 1px solid rgba(255,255,255,0.5); 
-                overflow: visible; 
+            .left-panel { padding: 15px; justify-content: center; }
+            .glass-player-card { padding: 22px 18px; }
+            .container.show-playlist .right-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid rgba(255,255,255,0.5);
                 opacity: 1;
             }
             .queue-header, .queue-list { width: 100%; }
@@ -453,472 +360,249 @@
 </head>
 <body>
 
-    <!-- FULL SCREEN BACKGROUND ARTWORK -->
     <div class="full-screen-artwork">
-        <img id="artwork" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Background Artwork" />
+        <img id="artwork" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Artwork" />
         <div class="artwork-overlay"></div>
-        
-        <!-- YOUTUBE IFRAME (HIDDEN) WITH NEW PLAYLIST ID -->
-        <iframe 
-            id="yt-player-iframe" 
-            src="https://www.youtube.com/embed/videoseries?list=RDGMEM2j3yRsqu_nuzRLnHd2bMVA&enablejsapi=1&controls=0&disablekb=1&fs=0&rel=0" 
-            allow="autoplay; encrypted-media" 
-            allowfullscreen>
-        </iframe>
+        <audio id="audio-engine"></audio>
     </div>
 
-    <!-- HEADER -->
     <header>
         <div class="header-title">
-            <h1>SUKOON PLAYER✨</h1>
-            <p>Your personal playlist · cute audio-first music player</p>
+            <h1>SUKOON PLAYER ✨</h1>
+            <p id="greeting-indicator">Sukoon Music</p>
         </div>
     </header>
 
-    <!-- MAIN APP CONTAINER -->
+    <div class="category-bar" id="category-bar">
+        <button class="chip active" onclick="loadFeed()">Auto Mood</button>
+        <button class="chip" onclick="loadCategory('bhakti')">Bhakti</button>
+        <button class="chip" onclick="loadCategory('sad')">Sad</button>
+        <button class="chip" onclick="loadCategory('romantic')">Romantic</button>
+        <button class="chip" onclick="loadCategory('90s')">90s Hits</button>
+        <button class="chip" onclick="loadCategory('old')">Old Classics</button>
+        <button class="chip" onclick="loadCategory('qawwali')">Qawwali</button>
+        <button class="chip" onclick="loadCategory('bhojpuri')">Bhojpuri</button>
+        <button class="chip" onclick="loadCategory('gym')">Gym Workout</button>
+        <button class="chip" onclick="loadCategory('funk')">Phonk</button>
+        <button class="chip" onclick="loadCategory('english')">English</button>
+    </div>
+
     <div class="container" id="main-container">
-        
-        <!-- LEFT PANEL (Player Controls Floating over Background) -->
         <div class="left-panel">
-            
             <div class="glass-player-card">
-                
                 <div class="track-info">
-                    <h2 id="track-title">Ready to Play ✨</h2>
-                    <h3 id="track-artist">Press Play to Start</h3>
+                    <h2 id="track-title">Sukoon Player ✨</h2>
+                    <h3 id="track-artist">Select a song to start</h3>
                 </div>
 
                 <div class="progress-container">
                     <span class="time-text" id="time-current">0:00</span>
-                    <input type="range" class="slider" id="seek-slider" value="0" min="0" max="100" step="1">
+                    <input type="range" class="slider" id="seek-slider" value="0" min="0" max="100">
                     <span class="time-text" id="time-total">0:00</span>
                 </div>
 
                 <div class="main-controls">
-                    <button class="btn" id="btn-shuffle" title="Shuffle">🔀</button>
-                    <button class="btn" id="btn-prev" title="Previous">⏮️</button>
-                    <button class="btn btn-play" id="btn-play-pause" title="Play/Pause">▶</button>
-                    <button class="btn" id="btn-next" title="Next">⏭️</button>
-                    <button class="btn" id="btn-repeat" title="Repeat Mode">🔁</button>
+                    <button class="btn" id="btn-prev">⏮</button>
+                    <button class="btn btn-play" id="btn-play-pause">▶</button>
+                    <button class="btn" id="btn-next">⏭</button>
                 </div>
 
                 <div class="secondary-controls">
-                    <button class="btn" id="btn-mute" title="Mute/Unmute">🔊</button>
+                    <button class="btn" id="btn-mute">🔊</button>
                     <input type="range" class="slider volume-slider" id="volume-slider" value="100" min="0" max="100">
-                    
-                    <!-- PROMINENT PLAYLIST BUTTON -->
-                    <button class="btn-playlist-toggle" id="btn-toggle-playlist" title="Open Playlist">
-                        📋 Playlist
-                    </button>
+                    <button class="btn-playlist-toggle" id="btn-toggle-playlist">📋 Playlist</button>
                 </div>
-
             </div>
-
         </div>
 
-        <!-- RIGHT PANEL (QUEUE / PLAYLIST) -->
         <div class="right-panel">
             <div class="queue-header">
-                <input type="text" id="search" class="search-box" placeholder="Search playlist (loaded tracks)...">
+                <input type="text" id="search" class="search-box" placeholder="Search any song (hit Enter)...">
             </div>
-            <div class="queue-list" id="queue-list">
-                <!-- Queue Items Injected via JavaScript -->
-            </div>
+            <div class="queue-list" id="queue-list"></div>
         </div>
-
-    </div>
-
-    <!-- INITIAL LOADING OVERLAY -->
-    <div class="overlay" id="loading-overlay">
-        <div class="spinner"></div>
-        <p style="font-weight: 600; color: #ff477e;">Connecting to Music...</p>
     </div>
 
     <script>
-        // =====================================================================
-        // CONFIGURATION WITH NEW PLAYLIST ID
-        // =====================================================================
-        const PLAYLIST_ID = "RDGMEM2j3yRsqu_nuzRLnHd2bMVA";
-        
-        // =====================================================================
-        // STATE
-        // =====================================================================
-        let player;
-        let playlistArray = [];
-        let trackMetadataCache = {}; 
-        let currentPlaylistIndex = 0;
-        let isPlaying = false;
-        let progressInterval;
+        // RENDER DEPLOY HONE KE BAAD APNA RENDER URL YAHAN DALEIN:
+        const BACKEND_URL = "https://YOUR-RENDER-APP-NAME.onrender.com";
+
+        const audio = document.getElementById('audio-engine');
+        let currentQueue = [];
+        let currentIndex = 0;
         let isSeeking = false;
-        let repeatMode = 0;
 
         const DOM = {
             container: document.getElementById('main-container'),
-            playPause: document.getElementById('btn-play-pause'),
-            prev: document.getElementById('btn-prev'),
-            next: document.getElementById('btn-next'),
-            shuffle: document.getElementById('btn-shuffle'),
-            repeat: document.getElementById('btn-repeat'),
-            mute: document.getElementById('btn-mute'),
-            volumeSlider: document.getElementById('volume-slider'),
-            seekSlider: document.getElementById('seek-slider'),
-            timeCurrent: document.getElementById('time-current'),
-            timeTotal: document.getElementById('time-total'),
             title: document.getElementById('track-title'),
             artist: document.getElementById('track-artist'),
             artwork: document.getElementById('artwork'),
+            playPause: document.getElementById('btn-play-pause'),
+            prev: document.getElementById('btn-prev'),
+            next: document.getElementById('btn-next'),
+            seekSlider: document.getElementById('seek-slider'),
+            volumeSlider: document.getElementById('volume-slider'),
+            timeCurrent: document.getElementById('time-current'),
+            timeTotal: document.getElementById('time-total'),
             queueList: document.getElementById('queue-list'),
             search: document.getElementById('search'),
-            loadingOverlay: document.getElementById('loading-overlay'),
-            btnTogglePlaylist: document.getElementById('btn-toggle-playlist')
+            btnTogglePlaylist: document.getElementById('btn-toggle-playlist'),
+            greeting: document.getElementById('greeting-indicator')
         };
 
-        // =====================================================================
-        // INITIALIZATION
-        // =====================================================================
-        function loadYouTubeAPI() {
-            const tag = document.createElement('script');
-            tag.src = "https://www.youtube.com/iframe_api";
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        }
-
-        window.onYouTubeIframeAPIReady = function() {
-            player = new YT.Player('yt-player-iframe', {
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange,
-                    'onError': onPlayerError
-                }
-            });
-        };
-
-        function onPlayerReady(event) {
-            setTimeout(() => {
-                playlistArray = player.getPlaylist() || [];
-                if (playlistArray.length > 0) {
-                    renderQueue();
-                    restoreState();
-                }
-                DOM.loadingOverlay.style.opacity = '0';
-                setTimeout(() => DOM.loadingOverlay.style.display = 'none', 400);
-            }, 500);
-            setupEventListeners();
-        }
-
-        function onPlayerStateChange(event) {
-            switch(event.data) {
-                case YT.PlayerState.PLAYING:
-                    isPlaying = true;
-                    DOM.playPause.innerHTML = '⏸';
-                    startProgressTracking();
-                    updateTrackInfo();
-                    break;
-                case YT.PlayerState.PAUSED:
-                case YT.PlayerState.ENDED:
-                    isPlaying = false;
-                    DOM.playPause.innerHTML = '▶';
-                    stopProgressTracking();
-                    break;
-                case YT.PlayerState.BUFFERING:
-                    DOM.playPause.innerHTML = '⏳';
-                    break;
-                case YT.PlayerState.UNSTARTED:
-                    updateTrackInfo();
-                    break;
-            }
-
-            if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.UNSTARTED) {
-                const newIndex = player.getPlaylistIndex();
-                if (newIndex !== currentPlaylistIndex && newIndex !== -1) {
-                    currentPlaylistIndex = newIndex;
-                    highlightCurrentQueueItem();
-                    saveState();
-                }
-            }
-        }
-
-        function onPlayerError(event) {
-            if (event.data === 100 || event.data === 101 || event.data === 150) {
-                setTimeout(() => player.nextVideo(), 1000); 
-            }
-        }
-
-        // =====================================================================
-        // UI & METADATA UPDATES
-        // =====================================================================
-        function updateTrackInfo() {
-            const data = player.getVideoData();
-            if (!data || !data.video_id) return;
-
-            const videoId = data.video_id;
-            const title = data.title || `Track ${currentPlaylistIndex + 1}`;
-            const artist = data.author || "YouTube Channel";
-            
-            // Maxresdefault makes a beautiful full screen background
-            const thumbUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-            const fallbackThumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-
-            trackMetadataCache[videoId] = { title, artist };
-
-            DOM.title.textContent = title;
-            DOM.artist.textContent = artist;
-            
-            const img = new Image();
-            img.onload = function() {
-                if (this.width === 120) DOM.artwork.src = fallbackThumbUrl;
-                else DOM.artwork.src = thumbUrl;
-            };
-            img.onerror = () => DOM.artwork.src = fallbackThumbUrl;
-            img.src = thumbUrl;
-
-            updateQueueItemDOM(videoId, title, artist);
-            updateMediaSession(title, artist, thumbUrl);
-        }
-
-        // =====================================================================
-        // QUEUE RENDERING
-        // =====================================================================
-        function renderQueue() {
-            DOM.queueList.innerHTML = '';
-            
-            playlistArray.forEach((videoId, index) => {
-                const cached = trackMetadataCache[videoId];
-                const displayTitle = cached ? cached.title : `Track ${index + 1}`;
-                const displayArtist = cached ? cached.artist : `Loading...`;
-                
-                const item = document.createElement('div');
-                item.className = 'queue-item';
-                item.dataset.index = index;
-                item.dataset.id = videoId;
-                
-                item.innerHTML = `
-                    <div class="queue-index">${index + 1}</div>
-                    <div class="playing-indicator">🎵</div>
-                    <img class="queue-thumb" src="https://img.youtube.com/vi/${videoId}/default.jpg" loading="lazy">
-                    <div class="queue-details">
-                        <div class="queue-title">${displayTitle}</div>
-                        <div class="queue-artist">${displayArtist}</div>
-                    </div>
-                `;
-
-                item.addEventListener('click', () => {
-                    player.playVideoAt(index);
-                });
-
-                DOM.queueList.appendChild(item);
-            });
-            
-            highlightCurrentQueueItem();
-        }
-
-        function highlightCurrentQueueItem() {
-            const items = DOM.queueList.querySelectorAll('.queue-item');
-            items.forEach(item => {
-                if (parseInt(item.dataset.index) === currentPlaylistIndex) {
-                    item.classList.add('active');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-        }
-
-        function updateQueueItemDOM(videoId, title, artist) {
-            const items = DOM.queueList.querySelectorAll(`.queue-item[data-id="${videoId}"]`);
-            items.forEach(item => {
-                item.querySelector('.queue-title').textContent = title;
-                item.querySelector('.queue-artist').textContent = artist;
-            });
-        }
-
-        DOM.search.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const items = DOM.queueList.querySelectorAll('.queue-item');
-            items.forEach(item => {
-                const title = item.querySelector('.queue-title').textContent.toLowerCase();
-                const artist = item.querySelector('.queue-artist').textContent.toLowerCase();
-                if (title.includes(term) || artist.includes(term)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+        DOM.btnTogglePlaylist.addEventListener('click', () => {
+            DOM.container.classList.toggle('show-playlist');
+            DOM.btnTogglePlaylist.classList.toggle('active');
         });
 
-        // =====================================================================
-        // CONTROLS
-        // =====================================================================
-        function setupEventListeners() {
-            
-            DOM.btnTogglePlaylist.addEventListener('click', () => {
-                DOM.container.classList.toggle('show-playlist');
-                DOM.btnTogglePlaylist.classList.toggle('active');
-            });
-
-            DOM.playPause.addEventListener('click', togglePlay);
-            DOM.next.addEventListener('click', () => player.nextVideo());
-            DOM.prev.addEventListener('click', () => player.previousVideo());
-            
-            DOM.seekSlider.addEventListener('mousedown', () => isSeeking = true);
-            DOM.seekSlider.addEventListener('touchstart', () => isSeeking = true, {passive: true});
-            
-            DOM.seekSlider.addEventListener('change', (e) => {
-                const seekTo = player.getDuration() * (e.target.value / 100);
-                player.seekTo(seekTo, true);
-                isSeeking = false;
-            });
-
-            DOM.volumeSlider.addEventListener('input', (e) => {
-                const vol = parseInt(e.target.value);
-                player.setVolume(vol);
-                if (vol > 0) player.unMute();
-                updateVolumeUI(vol);
-                saveState();
-            });
-
-            DOM.mute.addEventListener('click', () => {
-                if (player.isMuted()) {
-                    player.unMute();
-                    updateVolumeUI(player.getVolume());
-                } else {
-                    player.mute();
-                    DOM.mute.textContent = '🔇';
-                }
-                saveState();
-            });
-
-            DOM.shuffle.addEventListener('click', () => {
-                const isShuffle = !DOM.shuffle.classList.contains('active');
-                player.setShuffle(isShuffle);
-                DOM.shuffle.classList.toggle('active');
-                saveState();
-            });
-
-            DOM.repeat.addEventListener('click', () => {
-                repeatMode = (repeatMode + 1) % 3;
-                if (repeatMode === 0) {
-                    DOM.repeat.classList.remove('active');
-                    DOM.repeat.textContent = '🔁';
-                    player.setLoop(false);
-                } else if (repeatMode === 1) {
-                    DOM.repeat.classList.add('active');
-                    DOM.repeat.textContent = '🔁';
-                    player.setLoop(true);
-                } else {
-                    DOM.repeat.classList.add('active');
-                    DOM.repeat.textContent = '🔂';
-                }
-                saveState();
-            });
-        }
-
-        function togglePlay() {
-            if (isPlaying) {
-                player.pauseVideo();
+        DOM.playPause.addEventListener('click', () => {
+            if (audio.paused) {
+                if (audio.src) audio.play();
+                else if (currentQueue.length > 0) playTrack(0);
             } else {
-                player.playVideo();
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener('play', () => DOM.playPause.innerHTML = '⏸');
+        audio.addEventListener('pause', () => DOM.playPause.innerHTML = '▶');
+        audio.addEventListener('ended', () => playTrack(currentIndex + 1));
+
+        audio.addEventListener('timeupdate', () => {
+            if (!isSeeking && audio.duration) {
+                DOM.seekSlider.value = (audio.currentTime / audio.duration) * 100;
+                DOM.timeCurrent.textContent = formatTime(audio.currentTime);
+                DOM.timeTotal.textContent = formatTime(audio.duration);
+            }
+        });
+
+        DOM.seekSlider.addEventListener('mousedown', () => isSeeking = true);
+        DOM.seekSlider.addEventListener('touchstart', () => isSeeking = true, {passive: true});
+        DOM.seekSlider.addEventListener('change', (e) => {
+            if (audio.duration) {
+                audio.currentTime = (e.target.value / 100) * audio.duration;
+            }
+            isSeeking = false;
+        });
+
+        DOM.volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+        });
+
+        DOM.next.addEventListener('click', () => {
+            if (currentIndex + 1 < currentQueue.length) playTrack(currentIndex + 1);
+        });
+
+        DOM.prev.addEventListener('click', () => {
+            if (currentIndex - 1 >= 0) playTrack(currentIndex - 1);
+        });
+
+        DOM.search.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                searchTracks(e.target.value.trim());
+            }
+        });
+
+        async function loadFeed() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/feed`);
+                const data = await res.json();
+                DOM.greeting.textContent = data.greeting;
+                currentQueue = data.tracks;
+                renderQueue();
+            } catch (err) {
+                console.error("Backend offline ya connect nahi hua.");
             }
         }
 
-        function updateVolumeUI(vol) {
-            if (vol === 0 || player.isMuted()) DOM.mute.textContent = '🔇';
-            else if (vol < 50) DOM.mute.textContent = '🔉';
-            else DOM.mute.textContent = '🔊';
+        async function loadCategory(cat) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/category?genre=${cat}`);
+                const data = await res.json();
+                currentQueue = data.tracks;
+                renderQueue();
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        // =====================================================================
-        // PROGRESS TRACKING
-        // =====================================================================
-        function startProgressTracking() {
-            stopProgressTracking();
-            progressInterval = setInterval(() => {
-                if (isSeeking || !player.getCurrentTime) return;
-                
-                const current = player.getCurrentTime();
-                const duration = player.getDuration();
-                
-                if (duration > 0) {
-                    DOM.timeCurrent.textContent = formatTime(current);
-                    DOM.timeTotal.textContent = formatTime(duration);
-                    DOM.seekSlider.value = (current / duration) * 100;
+        async function searchTracks(query) {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/search?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                currentQueue = data.tracks;
+                renderQueue();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function playTrack(index) {
+            if (!currentQueue[index]) return;
+            currentIndex = index;
+            const track = currentQueue[index];
+
+            DOM.title.textContent = track.title;
+            DOM.artist.textContent = track.artist;
+            DOM.artwork.src = track.thumbnail;
+
+            updateQueueHighlight();
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/stream?id=${track.id}`);
+                const data = await res.json();
+                audio.src = data.stream_url;
+                audio.play();
+
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: track.title,
+                        artist: track.artist,
+                        artwork: [{ src: track.thumbnail, sizes: '512x512', type: 'image/jpeg' }]
+                    });
+                    navigator.mediaSession.setActionHandler('play', () => audio.play());
+                    navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+                    navigator.mediaSession.setActionHandler('nexttrack', () => playTrack(currentIndex + 1));
+                    navigator.mediaSession.setActionHandler('previoustrack', () => playTrack(currentIndex - 1));
                 }
-                if (repeatMode === 2 && duration > 0 && duration - current <= 1) {
-                    player.seekTo(0, true);
-                }
-            }, 500);
+            } catch (err) {
+                console.error("Stream fetch failed", err);
+            }
         }
 
-        function stopProgressTracking() {
-            clearInterval(progressInterval);
+        function renderQueue() {
+            DOM.queueList.innerHTML = '';
+            currentQueue.forEach((t, i) => {
+                const item = document.createElement('div');
+                item.className = `queue-item ${i === currentIndex ? 'active' : ''}`;
+                item.innerHTML = `
+                    <img class="queue-thumb" src="${t.thumbnail}">
+                    <div class="queue-details">
+                        <div class="queue-title">${t.title}</div>
+                        <div class="queue-artist">${t.artist}</div>
+                    </div>
+                `;
+                item.addEventListener('click', () => playTrack(i));
+                DOM.queueList.appendChild(item);
+            });
         }
 
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
+        function updateQueueHighlight() {
+            const items = DOM.queueList.querySelectorAll('.queue-item');
+            items.forEach((it, idx) => {
+                it.classList.toggle('active', idx === currentIndex);
+            });
+        }
+
+        function formatTime(sec) {
+            if (isNaN(sec)) return "0:00";
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
             return `${m}:${s < 10 ? '0' + s : s}`;
         }
 
-        // =====================================================================
-        // STATE PERSISTENCE
-        // =====================================================================
-        function saveState() {
-            const state = {
-                volume: DOM.volumeSlider.value,
-                muted: player.isMuted(),
-                shuffle: DOM.shuffle.classList.contains('active'),
-                repeatMode: repeatMode,
-                index: currentPlaylistIndex
-            };
-            localStorage.setItem('moonbeam_state', JSON.stringify(state));
-        }
-
-        function restoreState() {
-            try {
-                const saved = JSON.parse(localStorage.getItem('moonbeam_state'));
-                if (saved) {
-                    if (saved.volume) {
-                        player.setVolume(parseInt(saved.volume));
-                        DOM.volumeSlider.value = saved.volume;
-                        updateVolumeUI(saved.volume);
-                    }
-                    if (saved.muted) {
-                        player.mute();
-                        DOM.mute.textContent = '🔇';
-                    }
-                    if (saved.shuffle) {
-                        player.setShuffle(true);
-                        DOM.shuffle.classList.add('active');
-                    }
-                    if (saved.repeatMode !== undefined) {
-                        repeatMode = saved.repeatMode;
-                        if (repeatMode === 1) { DOM.repeat.classList.add('active'); DOM.repeat.textContent = '🔁'; player.setLoop(true); }
-                        if (repeatMode === 2) { DOM.repeat.classList.add('active'); DOM.repeat.textContent = '🔂'; }
-                    }
-                    if (saved.index !== undefined && saved.index !== 0) {
-                        player.playVideoAt(saved.index);
-                        setTimeout(() => player.pauseVideo(), 200);
-                    }
-                }
-            } catch (e) {}
-        }
-
-        function updateMediaSession(title, artist, artworkUrl) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: title,
-                    artist: artist,
-                    artwork: [{ src: artworkUrl, sizes: '512x512', type: 'image/jpeg' }]
-                });
-                navigator.mediaSession.setActionHandler('play', () => player.playVideo());
-                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
-                navigator.mediaSession.setActionHandler('previoustrack', () => player.previousVideo());
-                navigator.mediaSession.setActionHandler('nexttrack', () => player.nextVideo());
-            }
-        }
-
-        loadYouTubeAPI();
+        // On Load init
+        loadFeed();
     </script>
 </body>
 </html>
