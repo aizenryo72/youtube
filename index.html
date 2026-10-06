@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moonbeam Player ✨</title>
+    <title>sukoon player ✨</title>
     <style>
         :root {
-            --bg-color: #12091c;
-            --surface: #24133b;
-            --surface-hover: #341e54;
-            --primary: #9d4edd;
-            --primary-glow: rgba(157, 78, 221, 0.5);
-            --text-main: #f8f9fa;
-            --text-muted: #adb5bd;
-            --border-radius: 16px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* LIGHT PINK THEME */
+            --bg-color: #ffd1dc; /* Light Pink Background */
+            --surface: rgba(255, 255, 255, 0.7); /* Glass effect */
+            --surface-hover: rgba(255, 255, 255, 0.9);
+            --primary: #ff477e; /* Vibrant Pink for buttons */
+            --primary-glow: rgba(255, 71, 126, 0.4);
+            --text-main: #2b2b2b; /* Dark text for light mode */
+            --text-muted: #6b6b6b;
+            --border-radius: 24px;
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -31,6 +32,47 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            position: relative;
+        }
+
+        /* FULL SCREEN ARTWORK BACKGROUND */
+        .full-screen-artwork {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        #artwork {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity var(--transition);
+        }
+
+        /* Overlay to make text and glass card pop */
+        .artwork-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,209,220,0.3) 0%, rgba(255,209,220,0.8) 100%);
+            z-index: 1;
+        }
+
+        /* HIDDEN YT IFRAME */
+        #yt-player-iframe {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+            pointer-events: none;
+            z-index: -1;
+            border: none;
         }
 
         /* HEADER */
@@ -39,9 +81,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(18, 9, 28, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
             z-index: 10;
         }
 
@@ -58,33 +101,50 @@
             margin-top: 2px;
         }
 
-        /* LAYOUT */
+        /* MAIN LAYOUT */
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
+            z-index: 2; /* Above the background */
             transition: var(--transition);
         }
 
+        /* LEFT PANEL (HOME SCREEN) */
         .left-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 40px;
+            justify-content: flex-end; /* Push controls to the bottom */
+            padding: 40px 20px;
             position: relative;
             transition: var(--transition);
         }
 
-        /* RIGHT PANEL (HIDDEN BY DEFAULT) */
+        /* GLASS PLAYER CARD (Floating over thumbnail) */
+        .glass-player-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 35px 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* RIGHT PANEL (PLAYLIST - HIDDEN BY DEFAULT) */
         .right-panel {
             width: 0px;
             opacity: 0;
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
-            border-left: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
             transition: var(--transition);
             overflow: hidden;
         }
@@ -94,75 +154,28 @@
             opacity: 1;
         }
 
-        /* HIDDEN YT IFRAME */
-        #yt-player-iframe {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0.01;
-            pointer-events: none;
-            z-index: -1;
-            border: none;
-        }
-
-        /* ARTWORK */
-        .artwork-wrapper {
-            width: 100%;
-            max-width: 550px;
-            aspect-ratio: 1;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            margin-bottom: 40px;
-            position: relative;
-            background: #111;
-            transition: var(--transition);
-        }
-
-        .container.show-playlist .artwork-wrapper {
-            max-width: 380px;
-        }
-
-        #artwork {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: opacity var(--transition);
-        }
-
         /* TRACK INFO */
         .track-info {
-            text-align: center;
-            margin-bottom: 30px;
-            width: 100%;
-            max-width: 600px;
+            margin-bottom: 25px;
         }
 
         #track-title {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            transition: var(--transition);
-        }
-        
-        .container.show-playlist #track-title {
-            font-size: 1.6rem;
+            color: var(--text-main);
         }
 
         #track-artist {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--text-muted);
+            font-weight: 500;
         }
 
         /* CONTROLS */
-        .controls-wrapper {
-            width: 100%;
-            max-width: 650px;
-        }
-
         .progress-container {
             display: flex;
             align-items: center;
@@ -173,17 +186,17 @@
         .time-text {
             font-size: 0.9rem;
             color: var(--text-muted);
+            font-weight: 600;
             font-variant-numeric: tabular-nums;
             width: 50px;
-            text-align: center;
         }
 
         .slider {
             -webkit-appearance: none;
             flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
             outline: none;
             cursor: pointer;
         }
@@ -199,9 +212,7 @@
             transition: transform 0.1s;
         }
 
-        .slider::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
+        .slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
         .main-controls {
             display: flex;
@@ -221,7 +232,7 @@
             align-items: center;
             justify-content: center;
             transition: var(--transition);
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         .btn:hover {
@@ -247,7 +258,7 @@
 
         .btn-play:hover {
             transform: scale(1.05);
-            background: #a95de3;
+            background: #ff2a6d;
         }
 
         .secondary-controls {
@@ -255,16 +266,45 @@
             align-items: center;
             justify-content: center;
             gap: 20px;
+            background: rgba(0,0,0,0.03);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-flex;
         }
 
-        .volume-slider {
-            width: 120px;
+        .volume-slider { width: 100px; }
+
+        /* PLAYLIST TOGGLE BUTTON */
+        .btn-playlist-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 15px;
         }
 
-        /* QUEUE PANEL */
+        .btn-playlist-toggle:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .btn-playlist-toggle.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        /* QUEUE PANEL (PLAYLIST) */
         .queue-header {
             padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
             width: 400px; 
         }
 
@@ -272,8 +312,8 @@
             width: 100%;
             padding: 12px 16px;
             border-radius: 12px;
-            border: none;
-            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.5);
             color: var(--text-main);
             font-size: 0.9rem;
             outline: none;
@@ -281,8 +321,9 @@
         }
 
         .search-box:focus {
-            background: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 0 2px var(--primary);
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
         .queue-list {
@@ -294,8 +335,8 @@
 
         .queue-list::-webkit-scrollbar { width: 6px; }
         .queue-list::-webkit-scrollbar-track { background: transparent; }
-        .queue-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-        .queue-list::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        .queue-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        .queue-list::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         .queue-item {
             display: flex;
@@ -312,8 +353,8 @@
         }
 
         .queue-item.active {
-            background: rgba(157, 78, 221, 0.15);
-            border-left: 3px solid var(--primary);
+            background: rgba(255, 71, 126, 0.1);
+            border-left: 4px solid var(--primary);
         }
 
         .queue-index {
@@ -321,6 +362,7 @@
             color: var(--text-muted);
             width: 20px;
             text-align: right;
+            font-weight: 600;
         }
 
         .queue-thumb {
@@ -328,7 +370,8 @@
             height: 50px;
             border-radius: 8px;
             object-fit: cover;
-            background: #111;
+            background: #ffe4e1;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .queue-details {
@@ -337,7 +380,7 @@
         }
 
         .queue-title {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
@@ -364,11 +407,9 @@
             animation: pulse 1s infinite alternate;
         }
 
-        .queue-item.active .queue-index {
-            display: none;
-        }
+        .queue-item.active .queue-index { display: none; }
 
-        /* LOADING & OVERLAYS */
+        /* LOADING OVERLAY */
         .overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -378,12 +419,12 @@
             align-items: center;
             justify-content: center;
             z-index: 100;
-            transition: opacity 0.3s;
+            transition: opacity 0.4s;
         }
 
         .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(255,255,255,0.1);
+            width: 50px; height: 50px;
+            border: 5px solid rgba(255,255,255,0.4);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -391,23 +432,42 @@
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; transform: scale(1.1); } }
 
         /* RESPONSIVE MOBILE */
         @media (max-width: 900px) {
             .container { flex-direction: column; overflow-y: auto; }
-            .left-panel { padding: 20px; padding-bottom: 40px; width: 100%; }
-            .container.show-playlist .right-panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); overflow: visible; opacity: 1;}
+            .left-panel { padding: 20px; justify-content: center; }
+            .glass-player-card { padding: 25px 20px; }
+            
+            .container.show-playlist .right-panel { 
+                width: 100%; 
+                border-left: none; 
+                border-top: 1px solid rgba(255,255,255,0.5); 
+                overflow: visible; 
+                opacity: 1;
+            }
             .queue-header, .queue-list { width: 100%; }
-            .artwork-wrapper { max-width: 320px; margin-bottom: 25px; }
-            .container.show-playlist .artwork-wrapper { max-width: 250px; }
-            #track-title { font-size: 1.5rem; }
-            .queue-list { overflow: visible; }
         }
     </style>
 </head>
 <body>
 
+    <!-- FULL SCREEN BACKGROUND ARTWORK -->
+    <div class="full-screen-artwork">
+        <img id="artwork" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Background Artwork" />
+        <div class="artwork-overlay"></div>
+        
+        <!-- YOUTUBE IFRAME (HIDDEN) -->
+        <iframe 
+            id="yt-player-iframe" 
+            src="https://www.youtube.com/embed/videoseries?list=RDX3mXU-l21nk&enablejsapi=1&controls=0&disablekb=1&fs=0&rel=0" 
+            allow="autoplay; encrypted-media" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+    <!-- HEADER -->
     <header>
         <div class="header-title">
             <h1>Moonbeam Player ✨</h1>
@@ -415,27 +475,19 @@
         </div>
     </header>
 
+    <!-- MAIN APP CONTAINER -->
     <div class="container" id="main-container">
-        <!-- PLAYER PANEL -->
+        
+        <!-- LEFT PANEL (Player Controls Floating over Background) -->
         <div class="left-panel">
-            <div class="artwork-wrapper">
-                <img id="artwork" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Album Art" />
+            
+            <div class="glass-player-card">
                 
-                <!-- PRE-LOADED DIRECT IFRAME (SOLVES GITHUB PAGES ISSUE) -->
-                <iframe 
-                    id="yt-player-iframe" 
-                    src="https://www.youtube.com/embed/videoseries?list=RDX3mXU-l21nk&enablejsapi=1&controls=0&disablekb=1&fs=0&rel=0" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen>
-                </iframe>
-            </div>
+                <div class="track-info">
+                    <h2 id="track-title">Ready to Play ✨</h2>
+                    <h3 id="track-artist">Press Play to Start</h3>
+                </div>
 
-            <div class="track-info">
-                <h2 id="track-title">Ready to Play ✨</h2>
-                <h3 id="track-artist">Press Play to Start</h3>
-            </div>
-
-            <div class="controls-wrapper">
                 <div class="progress-container">
                     <span class="time-text" id="time-current">0:00</span>
                     <input type="range" class="slider" id="seek-slider" value="0" min="0" max="100" step="1">
@@ -453,29 +505,41 @@
                 <div class="secondary-controls">
                     <button class="btn" id="btn-mute" title="Mute/Unmute">🔊</button>
                     <input type="range" class="slider volume-slider" id="volume-slider" value="100" min="0" max="100">
-                    <button class="btn" id="btn-toggle-playlist" title="Toggle Playlist" style="margin-left: 20px;">📋</button>
+                    
+                    <!-- NEW PROMINENT PLAYLIST BUTTON -->
+                    <button class="btn-playlist-toggle" id="btn-toggle-playlist" title="Open Playlist">
+                        📋 Playlist
+                    </button>
                 </div>
+
             </div>
+
         </div>
 
-        <!-- QUEUE PANEL -->
+        <!-- RIGHT PANEL (QUEUE / PLAYLIST) -->
         <div class="right-panel">
             <div class="queue-header">
                 <input type="text" id="search" class="search-box" placeholder="Search playlist (loaded tracks)...">
             </div>
             <div class="queue-list" id="queue-list">
-                <!-- Items injected via JS -->
+                <!-- Queue Items Injected via JavaScript -->
             </div>
         </div>
+
     </div>
 
     <!-- INITIAL LOADING OVERLAY -->
     <div class="overlay" id="loading-overlay">
         <div class="spinner"></div>
-        <p>Connecting to Music...</p>
+        <p style="font-weight: 600; color: #ff477e;">Connecting to Music...</p>
     </div>
 
     <script>
+        // =====================================================================
+        // CONFIGURATION
+        // =====================================================================
+        const PLAYLIST_ID = "RDX3mXU-l21nk";
+        
         // =====================================================================
         // STATE
         // =====================================================================
@@ -510,7 +574,7 @@
         };
 
         // =====================================================================
-        // INITIALIZATION (Connecting JS API to existing Iframe)
+        // INITIALIZATION
         // =====================================================================
         function loadYouTubeAPI() {
             const tag = document.createElement('script');
@@ -520,7 +584,6 @@
         }
 
         window.onYouTubeIframeAPIReady = function() {
-            // Attach API to the already loaded iframe
             player = new YT.Player('yt-player-iframe', {
                 events: {
                     'onReady': onPlayerReady,
@@ -531,18 +594,15 @@
         };
 
         function onPlayerReady(event) {
-            // Since the iframe already loads the playlist via SRC, we just fetch it
             setTimeout(() => {
                 playlistArray = player.getPlaylist() || [];
                 if (playlistArray.length > 0) {
                     renderQueue();
                     restoreState();
                 }
-                
                 DOM.loadingOverlay.style.opacity = '0';
-                setTimeout(() => DOM.loadingOverlay.style.display = 'none', 300);
+                setTimeout(() => DOM.loadingOverlay.style.display = 'none', 400);
             }, 500);
-
             setupEventListeners();
         }
 
@@ -595,6 +655,7 @@
             const title = data.title || `Track ${currentPlaylistIndex + 1}`;
             const artist = data.author || "YouTube Channel";
             
+            // Maxresdefault makes a beautiful full screen background
             const thumbUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
             const fallbackThumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
@@ -837,7 +898,7 @@
                     }
                     if (saved.index !== undefined && saved.index !== 0) {
                         player.playVideoAt(saved.index);
-                        setTimeout(() => player.pauseVideo(), 200); // Select the song but don't autoplay yet to avoid browser block
+                        setTimeout(() => player.pauseVideo(), 200);
                     }
                 }
             } catch (e) {}
