@@ -8,6 +8,7 @@
     <meta name="application-name" content="Sukoon Player">
     <style>
         :root {
+            /* Default Pink Theme */
             --bg-color: #ffd1dc;
             --surface: rgba(255, 255, 255, 0.7);
             --surface-hover: rgba(255, 255, 255, 0.9);
@@ -16,7 +17,7 @@
             --text-main: #2b2b2b;
             --text-muted: #6b6b6b;
             --border-radius: 24px;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -34,6 +35,7 @@
             height: 100vh;
             overflow: hidden;
             position: relative;
+            transition: background-color var(--transition), color var(--transition);
         }
 
         .full-screen-artwork {
@@ -52,8 +54,10 @@
         .artwork-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,209,220,0.3) 0%, rgba(255,209,220,0.85) 100%);
+            background: linear-gradient(to bottom, transparent 0%, var(--bg-color) 100%);
+            opacity: 0.9;
             z-index: 1;
+            transition: background var(--transition);
         }
 
         header {
@@ -61,11 +65,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.45);
+            background: var(--surface);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             z-index: 10;
+            transition: background var(--transition);
         }
 
         .header-title h1 {
@@ -75,7 +80,8 @@
 
         .header-title p {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--primary);
+            font-weight: 600;
             margin-top: 2px;
         }
 
@@ -87,7 +93,7 @@
             overflow-x: auto;
             white-space: nowrap;
             z-index: 10;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.05);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             scrollbar-width: none;
@@ -97,8 +103,8 @@
         .chip {
             padding: 6px 14px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 71, 126, 0.2);
-            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid var(--primary-glow);
+            background: var(--surface);
             font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
@@ -108,8 +114,9 @@
 
         .chip:hover, .chip.active {
             background: var(--primary);
-            color: white;
+            color: white !important;
             box-shadow: 0 4px 12px var(--primary-glow);
+            border-color: var(--primary);
         }
 
         .container {
@@ -130,21 +137,20 @@
         }
 
         .glass-player-card {
-            background: rgba(255, 255, 255, 0.78);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: var(--surface);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             padding: 30px 35px;
             border-radius: 28px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 620px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background var(--transition);
         }
 
-        .track-info {
-            margin-bottom: 20px;
-        }
+        .track-info { margin-bottom: 20px; }
 
         #track-title {
             font-size: 1.6rem;
@@ -152,6 +158,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: var(--text-main);
         }
 
         #track-artist {
@@ -178,7 +185,7 @@
             -webkit-appearance: none;
             flex: 1;
             height: 6px;
-            background: rgba(0, 0, 0, 0.1);
+            background: rgba(128, 128, 128, 0.3);
             border-radius: 4px;
             outline: none;
             cursor: pointer;
@@ -212,17 +219,17 @@
             align-items: center;
             justify-content: center;
             transition: var(--transition);
-            opacity: 0.65;
+            opacity: 0.8;
         }
 
-        .btn:hover { opacity: 1; transform: scale(1.1); }
+        .btn:hover { opacity: 1; transform: scale(1.1); color: var(--primary); }
 
         .btn-play {
             width: 65px;
             height: 65px;
             border-radius: 50%;
             background: var(--primary);
-            color: white;
+            color: white !important;
             font-size: 1.6rem;
             opacity: 1;
             box-shadow: 0 6px 20px var(--primary-glow);
@@ -232,7 +239,7 @@
             display: inline-flex;
             align-items: center;
             gap: 15px;
-            background: rgba(0,0,0,0.03);
+            background: rgba(128,128,128,0.1);
             padding: 8px 16px;
             border-radius: 18px;
         }
@@ -243,7 +250,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            background: rgba(0,0,0,0.05);
+            background: rgba(128,128,128,0.1);
             border: none;
             padding: 7px 14px;
             border-radius: 14px;
@@ -251,6 +258,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            color: var(--text-main);
         }
 
         .btn-playlist-toggle.active {
@@ -261,12 +269,12 @@
         .right-panel {
             width: 0px;
             opacity: 0;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: var(--surface);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             display: flex;
             flex-direction: column;
-            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
             transition: var(--transition);
             overflow: hidden;
         }
@@ -278,7 +286,7 @@
 
         .queue-header {
             padding: 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(128,128,128,0.1);
             width: 380px;
         }
 
@@ -286,15 +294,11 @@
             width: 100%;
             padding: 10px 14px;
             border-radius: 10px;
-            border: 1px solid rgba(0,0,0,0.1);
-            background: rgba(255,255,255,0.7);
+            border: 1px solid rgba(128,128,128,0.2);
+            background: var(--bg-color);
+            color: var(--text-main);
             outline: none;
             font-size: 0.85rem;
-        }
-
-        .search-box:focus {
-            background: #fff;
-            border-color: var(--primary);
         }
 
         .queue-list {
@@ -314,9 +318,9 @@
             transition: var(--transition);
         }
 
-        .queue-item:hover { background: var(--surface-hover); }
+        .queue-item:hover { background: rgba(128,128,128,0.1); }
         .queue-item.active {
-            background: rgba(255, 71, 126, 0.12);
+            background: var(--primary-glow);
             border-left: 3px solid var(--primary);
         }
 
@@ -325,7 +329,6 @@
             height: 44px;
             border-radius: 8px;
             object-fit: cover;
-            background: #ffd1dc;
         }
 
         .queue-details { flex: 1; overflow: hidden; }
@@ -351,7 +354,7 @@
             .container.show-playlist .right-panel {
                 width: 100%;
                 border-left: none;
-                border-top: 1px solid rgba(255,255,255,0.5);
+                border-top: 1px solid rgba(128,128,128,0.2);
                 opacity: 1;
             }
             .queue-header, .queue-list { width: 100%; }
@@ -374,17 +377,17 @@
     </header>
 
     <div class="category-bar" id="category-bar">
-        <button class="chip active" onclick="loadFeed()">Auto Mood</button>
-        <button class="chip" onclick="loadCategory('bhakti')">Bhakti</button>
-        <button class="chip" onclick="loadCategory('sad')">Sad</button>
-        <button class="chip" onclick="loadCategory('romantic')">Romantic</button>
-        <button class="chip" onclick="loadCategory('90s')">90s Hits</button>
-        <button class="chip" onclick="loadCategory('old')">Old Classics</button>
-        <button class="chip" onclick="loadCategory('qawwali')">Qawwali</button>
-        <button class="chip" onclick="loadCategory('bhojpuri')">Bhojpuri</button>
-        <button class="chip" onclick="loadCategory('gym')">Gym Workout</button>
-        <button class="chip" onclick="loadCategory('funk')">Phonk</button>
-        <button class="chip" onclick="loadCategory('english')">English</button>
+        <button class="chip active" onclick="loadFeed(this)">Auto Mood</button>
+        <button class="chip" onclick="loadCategory('bhakti', 'Bhakti & Aarti 🕉️', this)">Bhakti</button>
+        <button class="chip" onclick="loadCategory('sad', 'Sad & Heartbroken 💔', this)">Sad</button>
+        <button class="chip" onclick="loadCategory('romantic', 'Romantic Vibes 💕', this)">Romantic</button>
+        <button class="chip" onclick="loadCategory('gym', 'Ghost Workout 👻', this)">Gym Workout</button>
+        <button class="chip" onclick="loadCategory('bhojpuri', 'Bhojpuri Hits 🕺', this)">Bhojpuri</button>
+        <button class="chip" onclick="loadCategory('qawwali', 'Sufi & Qawwali 🌙', this)">Qawwali</button>
+        <button class="chip" onclick="loadCategory('funk', 'Phonk & Bass 🔥', this)">Phonk</button>
+        <button class="chip" onclick="loadCategory('90s', '90s Evergreen 📼', this)">90s Hits</button>
+        <button class="chip" onclick="loadCategory('old', 'Retro Classics 📻', this)">Old Classics</button>
+        <button class="chip" onclick="loadCategory('english', 'Global Pop 🌍', this)">English</button>
     </div>
 
     <div class="container" id="main-container">
@@ -392,7 +395,7 @@
             <div class="glass-player-card">
                 <div class="track-info">
                     <h2 id="track-title">Sukoon Player ✨</h2>
-                    <h3 id="track-artist">Select a song to start</h3>
+                    <h3 id="track-artist">Select a category to start</h3>
                 </div>
 
                 <div class="progress-container">
@@ -424,9 +427,46 @@
     </div>
 
     <script>
-        // RENDER DEPLOY HONE KE BAAD APNA RENDER URL YAHAN DALEIN:
-       const BACKEND_URL = "https://youtube-2bwq.onrender.com";
+        // YAHAN APNA RENDER URL DAALEIN
+        const BACKEND_URL = "https://youtube-2bwq.onrender.com";
 
+        // ================= THEME CONFIGURATION =================
+        const THEMES = {
+            auto: { bg: '#ffd1dc', primary: '#ff477e', textMain: '#2b2b2b', textMuted: '#6b6b6b', surface: 'rgba(255, 255, 255, 0.7)' },
+            gym: { bg: '#0d0d0d', primary: '#00ffcc', textMain: '#ffffff', textMuted: '#aaaaaa', surface: 'rgba(20, 20, 20, 0.85)' },
+            bhakti: { bg: '#ffebd6', primary: '#ff7e00', textMain: '#4a2511', textMuted: '#795548', surface: 'rgba(255, 255, 255, 0.75)' },
+            sad: { bg: '#101820', primary: '#4da8da', textMain: '#e2e2e2', textMuted: '#8a9ea8', surface: 'rgba(30, 40, 50, 0.85)' },
+            romantic: { bg: '#ffe4e1', primary: '#ff1493', textMain: '#4a154b', textMuted: '#9c27b0', surface: 'rgba(255, 255, 255, 0.75)' },
+            bhojpuri: { bg: '#fffde7', primary: '#d50000', textMain: '#3e2723', textMuted: '#bf360c', surface: 'rgba(255, 255, 255, 0.75)' },
+            qawwali: { bg: '#003322', primary: '#ffcc00', textMain: '#ffffff', textMuted: '#a5d6a7', surface: 'rgba(10, 60, 40, 0.85)' },
+            funk: { bg: '#1a0033', primary: '#b400ff', textMain: '#ffffff', textMuted: '#ce93d8', surface: 'rgba(40, 10, 60, 0.85)' },
+            '90s': { bg: '#fdf3e7', primary: '#d35400', textMain: '#2e4053', textMuted: '#566573', surface: 'rgba(255, 255, 255, 0.75)' },
+            old: { bg: '#eaecee', primary: '#5d6d7e', textMain: '#17202a', textMuted: '#5d6d7e', surface: 'rgba(255, 255, 255, 0.75)' },
+            english: { bg: '#ebf5fb', primary: '#2980b9', textMain: '#154360', textMuted: '#2471a3', surface: 'rgba(255, 255, 255, 0.75)' }
+        };
+
+        function applyTheme(themeKey) {
+            const t = THEMES[themeKey] || THEMES['auto'];
+            document.documentElement.style.setProperty('--bg-color', t.bg);
+            document.documentElement.style.setProperty('--primary', t.primary);
+            document.documentElement.style.setProperty('--text-main', t.textMain);
+            document.documentElement.style.setProperty('--text-muted', t.textMuted);
+            document.documentElement.style.setProperty('--surface', t.surface);
+            
+            // Hex to RGB for glow effect
+            let hex = t.primary.replace('#', '');
+            let r = parseInt(hex.substring(0, 2), 16);
+            let g = parseInt(hex.substring(2, 4), 16);
+            let b = parseInt(hex.substring(4, 6), 16);
+            document.documentElement.style.setProperty('--primary-glow', `rgba(${r}, ${g}, ${b}, 0.4)`);
+        }
+
+        function setActiveChip(clickedBtn) {
+            document.querySelectorAll('.chip').forEach(btn => btn.classList.remove('active'));
+            if(clickedBtn) clickedBtn.classList.add('active');
+        }
+
+        // ================= PLAYER LOGIC =================
         const audio = document.getElementById('audio-engine');
         let currentQueue = [];
         let currentIndex = 0;
@@ -466,7 +506,7 @@
 
         audio.addEventListener('play', () => DOM.playPause.innerHTML = '⏸');
         audio.addEventListener('pause', () => DOM.playPause.innerHTML = '▶');
-        audio.addEventListener('ended', () => playTrack(currentIndex + 1));
+        audio.addEventListener('ended', () => { if (currentIndex + 1 < currentQueue.length) playTrack(currentIndex + 1); });
 
         audio.addEventListener('timeupdate', () => {
             if (!isSeeking && audio.duration) {
@@ -499,41 +539,57 @@
 
         DOM.search.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                DOM.greeting.textContent = "Search Results 🔍";
+                applyTheme('auto');
+                setActiveChip(null);
                 searchTracks(e.target.value.trim());
             }
         });
 
-        async function loadFeed() {
+        // ================= API CALLS =================
+        async function loadFeed(btnElement) {
+            setActiveChip(btnElement);
+            DOM.title.textContent = "Finding Mood...";
             try {
                 const res = await fetch(`${BACKEND_URL}/api/feed`);
                 const data = await res.json();
                 DOM.greeting.textContent = data.greeting;
                 currentQueue = data.tracks;
+                applyTheme('auto');
                 renderQueue();
+                DOM.title.textContent = "Select a song ✨";
             } catch (err) {
-                console.error("Backend offline ya connect nahi hua.");
+                DOM.title.textContent = "Backend connecting...";
             }
         }
 
-        async function loadCategory(cat) {
+        async function loadCategory(cat, title, btnElement) {
+            setActiveChip(btnElement);
+            DOM.greeting.textContent = title;
+            applyTheme(cat); // Apply specific color theme
+            DOM.title.textContent = "Loading Playlist...";
+            
             try {
                 const res = await fetch(`${BACKEND_URL}/api/category?genre=${cat}`);
                 const data = await res.json();
                 currentQueue = data.tracks;
                 renderQueue();
+                DOM.title.textContent = "Select a song ✨";
             } catch (err) {
-                console.error(err);
+                DOM.title.textContent = "Error loading category";
             }
         }
 
         async function searchTracks(query) {
+            DOM.title.textContent = "Searching...";
             try {
                 const res = await fetch(`${BACKEND_URL}/api/search?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 currentQueue = data.tracks;
                 renderQueue();
+                DOM.title.textContent = "Search complete";
             } catch (err) {
-                console.error(err);
+                DOM.title.textContent = "Search Failed";
             }
         }
 
@@ -542,31 +598,38 @@
             currentIndex = index;
             const track = currentQueue[index];
 
-            DOM.title.textContent = track.title;
+            // Show Loading state before fetching URL
+            DOM.title.textContent = "Loading Audio... ⏳";
             DOM.artist.textContent = track.artist;
             DOM.artwork.src = track.thumbnail;
-
             updateQueueHighlight();
 
             try {
                 const res = await fetch(`${BACKEND_URL}/api/stream?id=${track.id}`);
                 const data = await res.json();
-                audio.src = data.stream_url;
-                audio.play();
-
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: track.title,
-                        artist: track.artist,
-                        artwork: [{ src: track.thumbnail, sizes: '512x512', type: 'image/jpeg' }]
-                    });
-                    navigator.mediaSession.setActionHandler('play', () => audio.play());
-                    navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-                    navigator.mediaSession.setActionHandler('nexttrack', () => playTrack(currentIndex + 1));
-                    navigator.mediaSession.setActionHandler('previoustrack', () => playTrack(currentIndex - 1));
+                
+                if (data.stream_url) {
+                    audio.src = data.stream_url;
+                    audio.play();
+                    DOM.title.textContent = track.title; // Restore original title when played
+                    
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: track.title,
+                            artist: track.artist,
+                            artwork: [{ src: track.thumbnail, sizes: '512x512', type: 'image/jpeg' }]
+                        });
+                        navigator.mediaSession.setActionHandler('play', () => audio.play());
+                        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+                        navigator.mediaSession.setActionHandler('nexttrack', () => { if (currentIndex + 1 < currentQueue.length) playTrack(currentIndex + 1); });
+                        navigator.mediaSession.setActionHandler('previoustrack', () => { if (currentIndex - 1 >= 0) playTrack(currentIndex - 1); });
+                    }
+                } else {
+                    DOM.title.textContent = "Audio unavailable 🚫";
                 }
             } catch (err) {
                 console.error("Stream fetch failed", err);
+                DOM.title.textContent = "Error Loading Song ⚠️";
             }
         }
 
@@ -602,7 +665,7 @@
         }
 
         // On Load init
-        loadFeed();
+        loadFeed(document.querySelector('.chip.active'));
     </script>
 </body>
 </html>
