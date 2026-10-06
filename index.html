@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moonbeam Player ✨</title>
+    <style>
+        :root {
+            --bg-color: #12091c;
+            --surface: #24133b;
+            --surface-hover: #341e54;
+            --primary: #9d4edd;
+            --primary-glow: rgba(157, 78, 221, 0.5);
+            --text-main: #f8f9fa;
+            --text-muted: #adb5bd;
+            --border-radius: 16px;
+            --transition: 0.2s ease-in-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(18, 9, 28, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* LAYOUT */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .right-panel {
+            width: 400px;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* HIDDEN YT PLAYER */
+        #yt-player-container {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0.01;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* ARTWORK */
+        .artwork-wrapper {
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 1;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            margin-bottom: 40px;
+            position: relative;
+            background: #111;
+        }
+
+        #artwork {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity var(--transition);
+        }
+
+        /* TRACK INFO */
+        .track-info {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #track-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #track-artist {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* CONTROLS */
+        .controls-wrapper {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .time-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+            width: 45px;
+            text-align: center;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary-glow);
+            transition: transform 0.1s;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .main-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            opacity: 0.7;
+        }
+
+        .btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .btn.active {
+            color: var(--primary);
+            opacity: 1;
+        }
+
+        .btn-play {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            opacity: 1;
+            box-shadow: 0 8px 20px var(--primary-glow);
+        }
+
+        .btn-play:hover {
+            transform: scale(1.05);
+            background: #a95de3;
+        }
+
+        .secondary-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .volume-slider {
+            width: 100px;
+        }
+
+        /* QUEUE PANEL */
+        .queue-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-box:focus {
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        /* Scrollbar styles */
+        .queue-list::-webkit-scrollbar { width: 6px; }
+        .queue-list::-webkit-scrollbar-track { background: transparent; }
+        .queue-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+        .queue-list::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        .queue-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .queue-item:hover {
+            background: var(--surface-hover);
+        }
+
+        .queue-item.active {
+            background: rgba(157, 78, 221, 0.15);
+            border-left: 3px solid var(--primary);
+        }
+
+        .queue-index {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            width: 20px;
+            text-align: right;
+        }
+
+        .queue-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #111;
+        }
+
+        .queue-details {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .queue-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .queue-artist {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playing-indicator {
+            display: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .queue-item.active .playing-indicator {
+            display: block;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .queue-item.active .queue-index {
+            display: none;
+        }
+
+        /* LOADING & OVERLAYS */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.3s;
+        }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        #resume-overlay {
+            display: none;
+            background: rgba(18, 9, 28, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-resume {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            transition: transform 0.2s;
+        }
+        .btn-resume:hover { transform: scale(1.05); }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { from { opacity: 0.5; } to { opacity: 1; } }
+
+        /* RESPONSIVE MOBILE */
+        @media (max-width: 900px) {
+            .container { flex-direction: column; overflow-y: auto; }
+            .left-panel { padding: 20px; padding-bottom: 40px; }
+            .right-panel { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); overflow: visible; }
+            .artwork-wrapper { max-width: 280px; margin-bottom: 25px; }
+            #track-title { font-size: 1.4rem; }
+            .queue-list { overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>Moonbeam Player ✨</h1>
+            <p>Your personal playlist · cute audio-first music player</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- PLAYER PANEL -->
+        <div class="left-panel">
+            <div class="artwork-wrapper">
+                <img id="artwork" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Album Art" />
+                <div id="yt-player-container"></div>
+            </div>
+
+            <div class="track-info">
+                <h2 id="track-title">Loading Moonbeam...</h2>
+                <h3 id="track-artist">Please wait ✨</h3>
+            </div>
+
+            <div class="controls-wrapper">
+                <div class="progress-container">
+                    <span class="time-text" id="time-current">0:00</span>
+                    <input type="range" class="slider" id="seek-slider" value="0" min="0" max="100" step="1">
+                    <span class="time-text" id="time-total">0:00</span>
+                </div>
+
+                <div class="main-controls">
+                    <button class="btn" id="btn-shuffle" title="Shuffle">🔀</button>
+                    <button class="btn" id="btn-prev" title="Previous">⏮️</button>
+                    <button class="btn btn-play" id="btn-play-pause" title="Play/Pause">▶</button>
+                    <button class="btn" id="btn-next" title="Next">⏭️</button>
+                    <button class="btn" id="btn-repeat" title="Repeat Mode">🔁</button>
+                </div>
+
+                <div class="secondary-controls">
+                    <button class="btn" id="btn-mute" title="Mute/Unmute">🔊</button>
+                    <input type="range" class="slider volume-slider" id="volume-slider" value="100" min="0" max="100">
+                </div>
+            </div>
+        </div>
+
+        <!-- QUEUE PANEL -->
+        <div class="right-panel">
+            <div class="queue-header">
+                <input type="text" id="search" class="search-box" placeholder="Search playlist (loaded tracks)...">
+            </div>
+            <div class="queue-list" id="queue-list">
+                <!-- Items injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- INITIAL LOADING OVERLAY -->
+    <div class="overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading Playlist...</p>
+    </div>
+
+    <!-- BROWSER AUTOPLAY BLOCK OVERLAY -->
+    <div class="overlay" id="resume-overlay">
+        <button class="btn-resume" id="btn-resume">Resume Playback ▶</button>
+    </div>
+
+    <script>
+        // =====================================================================
+        // CONFIGURATION
+        // =====================================================================
+        const PLAYLIST_ID = "RDX3mXU-l21nk";
+        
+        // =====================================================================
+        // STATE
+        // =====================================================================
+        let player;
+        let playlistArray = [];
+        let trackMetadataCache = {}; // Cache to store titles as they load
+        let currentPlaylistIndex = 0;
+        let isPlaying = false;
+        let progressInterval;
+        let isSeeking = false;
+        let repeatMode = 0; // 0 = off, 1 = all, 2 = one
+
+        // DOM Elements
+        const DOM = {
+            playPause: document.getElementById('btn-play-pause'),
+            prev: document.getElementById('btn-prev'),
+            next: document.getElementById('btn-next'),
+            shuffle: document.getElementById('btn-shuffle'),
+            repeat: document.getElementById('btn-repeat'),
+            mute: document.getElementById('btn-mute'),
+            volumeSlider: document.getElementById('volume-slider'),
+            seekSlider: document.getElementById('seek-slider'),
+            timeCurrent: document.getElementById('time-current'),
+            timeTotal: document.getElementById('time-total'),
+            title: document.getElementById('track-title'),
+            artist: document.getElementById('track-artist'),
+            artwork: document.getElementById('artwork'),
+            queueList: document.getElementById('queue-list'),
+            search: document.getElementById('search'),
+            loadingOverlay: document.getElementById('loading-overlay'),
+            resumeOverlay: document.getElementById('resume-overlay'),
+            btnResume: document.getElementById('btn-resume')
+        };
+
+        // =====================================================================
+        // INITIALIZATION (YouTube Iframe API)
+        // =====================================================================
+        function loadYouTubeAPI() {
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+
+        window.onYouTubeIframeAPIReady = function() {
+            player = new YT.Player('yt-player-container', {
+                height: '100', // required by YT API
+                width: '100',  
+                playerVars: {
+                    listType: 'playlist',
+                    list: PLAYLIST_ID,
+                    controls: 0,
+                    disablekb: 1,
+                    fs: 0,
+                    rel: 0,
+                    iv_load_policy: 3
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        };
+
+        // =====================================================================
+        // PLAYER EVENTS
+        // =====================================================================
+        function onPlayerReady(event) {
+            // Fetch the queue provided by YouTube Iframe
+            playlistArray = player.getPlaylist() || [];
+            
+            if (playlistArray.length > 0) {
+                renderQueue();
+                restoreState();
+                DOM.loadingOverlay.style.opacity = '0';
+                setTimeout(() => DOM.loadingOverlay.style.display = 'none', 300);
+            } else {
+                DOM.title.textContent = "Playlist Unavailable";
+                DOM.artist.textContent = "Unable to load data.";
+            }
+
+            setupEventListeners();
+        }
+
+        function onPlayerStateChange(event) {
+            switch(event.data) {
+                case YT.PlayerState.PLAYING:
+                    isPlaying = true;
+                    DOM.playPause.innerHTML = '⏸';
+                    startProgressTracking();
+                    updateTrackInfo();
+                    
+                    // Hide resume overlay if it was showing
+                    DOM.resumeOverlay.style.display = 'none';
+                    break;
+                case YT.PlayerState.PAUSED:
+                case YT.PlayerState.ENDED:
+                    isPlaying = false;
+                    DOM.playPause.innerHTML = '▶';
+                    stopProgressTracking();
+                    break;
+                case YT.PlayerState.BUFFERING:
+                    DOM.playPause.innerHTML = '⏳';
+                    break;
+            }
+
+            // Sync queue selection
+            if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.UNSTARTED) {
+                const newIndex = player.getPlaylistIndex();
+                if (newIndex !== currentPlaylistIndex && newIndex !== -1) {
+                    currentPlaylistIndex = newIndex;
+                    highlightCurrentQueueItem();
+                    saveState();
+                }
+            }
+        }
+
+        function onPlayerError(event) {
+            console.error("YouTube Player Error:", event.data);
+            // Skip broken videos automatically
+            if (event.data === 100 || event.data === 101 || event.data === 150) {
+                setTimeout(() => player.nextVideo(), 1000);
+            }
+        }
+
+        // =====================================================================
+        // UI & METADATA UPDATES
+        // =====================================================================
+        function updateTrackInfo() {
+            const data = player.getVideoData();
+            if (!data || !data.video_id) return;
+
+            const videoId = data.video_id;
+            const title = data.title || `Track ${currentPlaylistIndex + 1}`;
+            const artist = data.author || "YouTube Channel";
+            
+            // Generate standard YouTube high-res thumbnail
+            const thumbUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+            const fallbackThumbUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+            // Cache for Queue search/display
+            trackMetadataCache[videoId] = { title, artist };
+
+            // Update Player UI
+            DOM.title.textContent = title;
+            DOM.artist.textContent = artist;
+            
+            // Image fallback handling
+            const img = new Image();
+            img.onload = function() {
+                // maxresdefault returns a 120px gray image if it doesn't exist
+                if (this.width === 120) DOM.artwork.src = fallbackThumbUrl;
+                else DOM.artwork.src = thumbUrl;
+            };
+            img.onerror = () => DOM.artwork.src = fallbackThumbUrl;
+            img.src = thumbUrl;
+
+            updateQueueItemDOM(videoId, title, artist);
+            updateMediaSession(title, artist, thumbUrl);
+        }
+
+        // =====================================================================
+        // QUEUE RENDERING
+        // =====================================================================
+        function renderQueue() {
+            DOM.queueList.innerHTML = '';
+            
+            playlistArray.forEach((videoId, index) => {
+                const cached = trackMetadataCache[videoId];
+                const displayTitle = cached ? cached.title : `Track ${index + 1}`;
+                const displayArtist = cached ? cached.artist : `Loading...`;
+                
+                const item = document.createElement('div');
+                item.className = 'queue-item';
+                item.dataset.index = index;
+                item.dataset.id = videoId;
+                
+                item.innerHTML = `
+                    <div class="queue-index">${index + 1}</div>
+                    <div class="playing-indicator">🎵</div>
+                    <img class="queue-thumb" src="https://img.youtube.com/vi/${videoId}/default.jpg" loading="lazy" alt="Thumbnail">
+                    <div class="queue-details">
+                        <div class="queue-title">${displayTitle}</div>
+                        <div class="queue-artist">${displayArtist}</div>
+                    </div>
+                `;
+
+                item.addEventListener('click', () => {
+                    player.playVideoAt(index);
+                });
+
+                DOM.queueList.appendChild(item);
+            });
+            
+            highlightCurrentQueueItem();
+        }
+
+        function highlightCurrentQueueItem() {
+            const items = DOM.queueList.querySelectorAll('.queue-item');
+            items.forEach(item => {
+                if (parseInt(item.dataset.index) === currentPlaylistIndex) {
+                    item.classList.add('active');
+                    // Scroll into view gently
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function updateQueueItemDOM(videoId, title, artist) {
+            const items = DOM.queueList.querySelectorAll(`.queue-item[data-id="${videoId}"]`);
+            items.forEach(item => {
+                item.querySelector('.queue-title').textContent = title;
+                item.querySelector('.queue-artist').textContent = artist;
+            });
+        }
+
+        // Queue Search / Filter
+        DOM.search.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const items = DOM.queueList.querySelectorAll('.queue-item');
+            
+            items.forEach(item => {
+                const title = item.querySelector('.queue-title').textContent.toLowerCase();
+                const artist = item.querySelector('.queue-artist').textContent.toLowerCase();
+                if (title.includes(term) || artist.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // =====================================================================
+        // CONTROLS & TIMING
+        // =====================================================================
+        function setupEventListeners() {
+            DOM.playPause.addEventListener('click', togglePlay);
+            DOM.next.addEventListener('click', () => player.nextVideo());
+            DOM.prev.addEventListener('click', () => player.previousVideo());
+            
+            // Seek
+            DOM.seekSlider.addEventListener('mousedown', () => isSeeking = true);
+            DOM.seekSlider.addEventListener('touchstart', () => isSeeking = true, {passive: true});
+            
+            DOM.seekSlider.addEventListener('change', (e) => {
+                const seekTo = player.getDuration() * (e.target.value / 100);
+                player.seekTo(seekTo, true);
+                isSeeking = false;
+            });
+
+            // Volume
+            DOM.volumeSlider.addEventListener('input', (e) => {
+                const vol = parseInt(e.target.value);
+                player.setVolume(vol);
+                if (vol > 0) player.unMute();
+                updateVolumeUI(vol);
+                saveState();
+            });
+
+            DOM.mute.addEventListener('click', () => {
+                if (player.isMuted()) {
+                    player.unMute();
+                    updateVolumeUI(player.getVolume());
+                } else {
+                    player.mute();
+                    DOM.mute.textContent = '🔇';
+                }
+                saveState();
+            });
+
+            // Shuffle
+            DOM.shuffle.addEventListener('click', () => {
+                const isShuffle = !DOM.shuffle.classList.contains('active');
+                player.setShuffle(isShuffle);
+                DOM.shuffle.classList.toggle('active');
+                saveState();
+            });
+
+            // Repeat (0: Off, 1: All, 2: One)
+            DOM.repeat.addEventListener('click', () => {
+                repeatMode = (repeatMode + 1) % 3;
+                if (repeatMode === 0) {
+                    DOM.repeat.classList.remove('active');
+                    DOM.repeat.textContent = '🔁';
+                    player.setLoop(false);
+                } else if (repeatMode === 1) {
+                    DOM.repeat.classList.add('active');
+                    DOM.repeat.textContent = '🔁';
+                    player.setLoop(true);
+                } else {
+                    DOM.repeat.classList.add('active');
+                    DOM.repeat.textContent = '🔂';
+                    // For repeat one, logic is handled on video end (though YT loop API is finicky, we rely on custom logic if needed, but setLoop(true) loops playlist)
+                }
+                saveState();
+            });
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (document.activeElement === DOM.search) return; // Don't trigger if typing
+
+                switch(e.code) {
+                    case 'Space': e.preventDefault(); togglePlay(); break;
+                    case 'ArrowRight': e.preventDefault(); player.seekTo(player.getCurrentTime() + 10, true); break;
+                    case 'ArrowLeft': e.preventDefault(); player.seekTo(player.getCurrentTime() - 10, true); break;
+                    case 'ArrowUp': e.preventDefault(); adjustVolume(10); break;
+                    case 'ArrowDown': e.preventDefault(); adjustVolume(-10); break;
+                    case 'KeyN': player.nextVideo(); break;
+                    case 'KeyP': player.previousVideo(); break;
+                    case 'KeyM': DOM.mute.click(); break;
+                }
+            });
+
+            DOM.btnResume.addEventListener('click', () => {
+                player.playVideo();
+                DOM.resumeOverlay.style.display = 'none';
+            });
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        }
+
+        function adjustVolume(change) {
+            let current = player.getVolume();
+            let newVol = Math.max(0, Math.min(100, current + change));
+            player.setVolume(newVol);
+            DOM.volumeSlider.value = newVol;
+            updateVolumeUI(newVol);
+        }
+
+        function updateVolumeUI(vol) {
+            if (vol === 0 || player.isMuted()) DOM.mute.textContent = '🔇';
+            else if (vol < 50) DOM.mute.textContent = '🔉';
+            else DOM.mute.textContent = '🔊';
+        }
+
+        // =====================================================================
+        // PROGRESS TRACKING
+        // =====================================================================
+        function startProgressTracking() {
+            stopProgressTracking();
+            progressInterval = setInterval(() => {
+                if (isSeeking || !player.getCurrentTime) return;
+                
+                const current = player.getCurrentTime();
+                const duration = player.getDuration();
+                
+                if (duration > 0) {
+                    DOM.timeCurrent.textContent = formatTime(current);
+                    DOM.timeTotal.textContent = formatTime(duration);
+                    DOM.seekSlider.value = (current / duration) * 100;
+                }
+
+                // Handle 'Repeat One' custom logic
+                if (repeatMode === 2 && duration > 0 && duration - current <= 1) {
+                    player.seekTo(0, true);
+                }
+
+            }, 500);
+        }
+
+        function stopProgressTracking() {
+            clearInterval(progressInterval);
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' + s : s}`;
+        }
+
+        // =====================================================================
+        // STATE PERSISTENCE & MEDIA SESSION
+        // =====================================================================
+        function saveState() {
+            const state = {
+                volume: DOM.volumeSlider.value,
+                muted: player.isMuted(),
+                shuffle: DOM.shuffle.classList.contains('active'),
+                repeatMode: repeatMode,
+                index: currentPlaylistIndex
+            };
+            localStorage.setItem('moonbeam_state', JSON.stringify(state));
+        }
+
+        function restoreState() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('moonbeam_state'));
+                if (saved) {
+                    if (saved.volume) {
+                        player.setVolume(parseInt(saved.volume));
+                        DOM.volumeSlider.value = saved.volume;
+                        updateVolumeUI(saved.volume);
+                    }
+                    if (saved.muted) {
+                        player.mute();
+                        DOM.mute.textContent = '🔇';
+                    }
+                    if (saved.shuffle) {
+                        player.setShuffle(true);
+                        DOM.shuffle.classList.add('active');
+                    }
+                    if (saved.repeatMode !== undefined) {
+                        repeatMode = saved.repeatMode;
+                        if (repeatMode === 1) { DOM.repeat.classList.add('active'); DOM.repeat.textContent = '🔁'; player.setLoop(true); }
+                        if (repeatMode === 2) { DOM.repeat.classList.add('active'); DOM.repeat.textContent = '🔂'; }
+                    }
+                    if (saved.index !== undefined && saved.index !== 0) {
+                        // Browsers block autoplay, so we cue it and show the resume button
+                        player.playVideoAt(saved.index); 
+                        setTimeout(() => {
+                            if (!isPlaying) {
+                                DOM.resumeOverlay.style.display = 'flex';
+                            }
+                        }, 500);
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not restore player state", e);
+            }
+        }
+
+        function updateMediaSession(title, artist, artworkUrl) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: title,
+                    artist: artist,
+                    artwork: [
+                        { src: artworkUrl, sizes: '512x512', type: 'image/jpeg' }
+                    ]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => player.playVideo());
+                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
+                navigator.mediaSession.setActionHandler('previoustrack', () => player.previousVideo());
+                navigator.mediaSession.setActionHandler('nexttrack', () => player.nextVideo());
+            }
+        }
+
+        // =====================================================================
+        // START APP
+        // =====================================================================
+        loadYouTubeAPI();
+
+    </script>
+</body>
+</html>
